@@ -28,15 +28,46 @@ REQUIRED_OUTPUT_COLUMNS = {
     },
 }
 
+LOCAL_ONLY_FOLDERS = {
+    ".venv",
+    ".idea",
+    "__pycache__",
+}
 
-def test_no_local_environment_folders() -> None:
-    for name in (".venv", ".idea", "__pycache__"):
-        assert not (PROJECT_ROOT / name).exists()
+
+def test_local_environment_folders_are_gitignored() -> None:
+    """Confirm local environment folders are excluded from Git."""
+
+    gitignore_path = PROJECT_ROOT / ".gitignore"
+
+    assert gitignore_path.is_file(), "The project is missing a .gitignore file."
+
+    ignored_entries = {
+        line.strip().rstrip("/")
+        for line in gitignore_path.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.strip().startswith("#")
+    }
+
+    missing_entries = LOCAL_ONLY_FOLDERS - ignored_entries
+
+    assert not missing_entries, (
+        "These local folders are missing from .gitignore: "
+        f"{sorted(missing_entries)}"
+    )
 
 
 def test_required_dashboard_outputs() -> None:
+    """Confirm required Power BI output files and columns exist."""
+
     for filename, required_columns in REQUIRED_OUTPUT_COLUMNS.items():
         path = METRICS_DIR / filename
+
         assert path.is_file(), f"Missing dashboard output: {path}"
+
         columns = set(pd.read_csv(path, nrows=1).columns)
-        assert required_columns <= columns
+        missing_columns = required_columns - columns
+
+        assert not missing_columns, (
+            f"{filename} is missing required columns: "
+            f"{sorted(missing_columns)}"
+        )
