@@ -99,3 +99,19 @@ The cleaned report copy is located at:
 
 ```text
 dashboard/Spokesfan_Merchant_Analytics_Dashboard_Cleaned.pbix
+```
+
+## Dashboard Preview
+
+### Merchant Overview
+
+![Merchant Overview](dashboard/images/overview.png)
+
+### Product Performance
+
+![Product Performance](dashboard/images/product-performance.png)
+
+### Customer Insights
+
+![Customer Insights](dashboard/images/customer-insights.png)
+
