@@ -2,306 +2,102 @@
 Script 21 - Create Dashboard Metrics
 
 Purpose:
-    Create BI-ready dashboard metrics from sentiment analysis outputs.
+    Validate and enrich product_negative_themes.csv with consistent impact
+    and risk metrics.
 
-Creates:
-    - product_negative_themes.csv with customer impact metrics
-
-Metrics added:
-    - negative_review_count
-    - theme_prevalence_in_negative_reviews
-    - total_reviews
-    - overall_customer_impact
-    - impact_rank
-    - customer_risk_score
+Updates:
+    - product_negative_themes.csv
 """
 
-
 from pathlib import Path
+
 import pandas as pd
 
 
-# ---------------------------------------------------------
-# Paths
-# ---------------------------------------------------------
-
 project_root = Path(__file__).resolve().parent.parent
-
-processed_path = project_root / "data" / "processed"
-
-dashboard_path = processed_path / "dashboard_metrics"
-
-sentiment_file = (
-    processed_path /
-    "reviews_with_roberta_sentiment.csv"
+dashboard_path = (
+    project_root / "data" / "processed" / "dashboard_metrics"
 )
 
 product_theme_file = dashboard_path / "product_negative_themes.csv"
 
 
 print("\nCreating dashboard metrics...\n")
+print("Loading product negative themes...")
 
+df = pd.read_csv(product_theme_file)
 
-# ---------------------------------------------------------
-# Load sentiment dataset
-# ---------------------------------------------------------
+required_columns = [
+    "merchant",
+    "product_name",
+    "theme",
+    "mentions",
+    "negative_review_count",
+    "total_reviews",
+    "average_rating",
+    "theme_severity",
+]
 
-print("Loading sentiment dataset...")
-
-df = pd.read_csv(
-    sentiment_file,
-    low_memory=False
-)
-
-print(f"Loaded {len(df)} reviews")
-
-
-print("\nColumns:")
-print(df.columns.tolist())
-
-
-# ---------------------------------------------------------
-# Load existing product themes
-# ---------------------------------------------------------
-
-print("\nLoading product negative themes...")
-
-product_negative_themes = pd.read_csv(
-    product_theme_file
-)
-
-print("\nExisting theme columns:")
-print(product_negative_themes.columns.tolist())
-
-
-print(
-    f"Loaded {len(product_negative_themes)} theme records"
-)
-
-print("\nSentiment distribution:")
-print(df["sentiment"].value_counts())
-
-print("\nRoBERTa sentiment distribution:")
-print(df["roberta_label"].value_counts())
-
-
-# ---------------------------------------------------------
-# Calculate negative review counts per product
-# ---------------------------------------------------------
-
-print("\nCalculating negative review counts...")
-
-
-negative_reviews = (
-    df[
-        df["roberta_label"]
-        .str.lower()
-        .eq("negative")
-    ]
-    .groupby(
-        [
-            "merchant",
-            "product_name"
-        ]
+missing = [column for column in required_columns if column not in df.columns]
+if missing:
+    raise ValueError(
+        "Run Script 20 first. Missing required columns: "
+        f"{missing}"
     )
-    .size()
-    .reset_index(
-        name="negative_review_count"
-    )
+
+
+df["negative_review_rate"] = (
+    df["negative_review_count"]
+    / df["total_reviews"].replace(0, 1)
 )
 
-
-# ---------------------------------------------------------
-# Calculate total reviews per product
-# ---------------------------------------------------------
-
-print("Calculating total review counts...")
-
-
-total_reviews = (
-    df.groupby(
-        [
-            "merchant",
-            "product_name"
-        ]
-    )
-    .size()
-    .reset_index(
-        name="total_reviews"
-    )
+df["theme_prevalence_in_negative_reviews"] = (
+    df["mentions"]
+    / df["negative_review_count"].replace(0, 1)
 )
 
-
-# ---------------------------------------------------------
-# Merge metrics
-# ---------------------------------------------------------
-
-print("\nMerging metrics...")
-
-
-# Remove old calculated columns if rerunning script
-product_negative_themes = product_negative_themes.drop(
-    columns=[
-        "negative_review_count",
-        "theme_severity",
-        "total_reviews",
-        "theme_frequency_within_negative_reviews",
-        "overall_customer_impact",
-        "impact_rank"
-    ],
-    errors="ignore"
+df["overall_customer_impact"] = (
+    df["mentions"]
+    / df["total_reviews"].replace(0, 1)
 )
 
-
-product_negative_themes = (
-    product_negative_themes
-    .merge(
-        negative_reviews,
-        on=[
-            "merchant",
-            "product_name"
-        ],
-        how="left"
-    )
-    .merge(
-        total_reviews,
-        on=[
-            "merchant",
-            "product_name"
-        ],
-        how="left"
-    )
+df["weighted_theme_mentions"] = (
+    df["mentions"] * df["theme_severity"]
 )
 
-product_negative_themes[
-    [
-        "negative_review_count",
-        "total_reviews"
-    ]
-] = (
-    product_negative_themes[
-        [
-            "negative_review_count",
-            "total_reviews"
-        ]
-    ]
-    .fillna(0)
+# Interpretable theme-level risk:
+# percent of all reviews represented by the theme, weighted by severity.
+df["customer_risk_score"] = (
+    df["overall_customer_impact"]
+    * df["theme_severity"]
+    * 100
+).round(2)
+
+df["impact_rank"] = (
+    df.groupby("merchant")["customer_risk_score"]
+    .rank(ascending=False, method="dense")
     .astype(int)
 )
 
+rate_columns = [
+    "negative_review_rate",
+    "theme_prevalence_in_negative_reviews",
+    "overall_customer_impact",
+]
 
-print("\nColumns after merge:")
-print(product_negative_themes.columns.tolist())
+df[rate_columns] = df[rate_columns].round(4)
+df["average_rating"] = df["average_rating"].round(2)
+df["weighted_theme_mentions"] = df["weighted_theme_mentions"].round(2)
 
-
-# ---------------------------------------------------------
-# Create BI metrics
-# ---------------------------------------------------------
-
-print("Creating BI metrics...")
-
-
-# Frequency of theme mentions within negative reviews
-product_negative_themes[
-    "theme_prevalence_in_negative_reviews"
-] = (
-    product_negative_themes["mentions"]
-    /
-    product_negative_themes["negative_review_count"]
-    .replace(0, 1)
+df = df.sort_values(
+    ["merchant", "impact_rank", "product_name", "theme"],
+    ascending=[True, True, True, True],
 )
 
-# Overall customer impact
-product_negative_themes[
-    "overall_customer_impact"
-] = (
-    product_negative_themes["mentions"]
-    /
-    product_negative_themes["total_reviews"]
-    .replace(0, 1)
-)
-
-product_negative_themes[
-    [
-        "theme_prevalence_in_negative_reviews",
-        "overall_customer_impact"
-    ]
-] = (
-    product_negative_themes[
-        [
-            "theme_prevalence_in_negative_reviews",
-            "overall_customer_impact"
-        ]
-    ]
-    .round(4)
-)
-
-
-# Rank biggest customer impact issues by merchant
-product_negative_themes[
-    "impact_rank"
-] = (
-    product_negative_themes
-    .groupby("merchant")
-    ["overall_customer_impact"]
-    .rank(
-        ascending=False,
-        method="dense"
-    )
-)
-
-
-# Customer risk score
-product_negative_themes[
-    "customer_risk_score"
-] = (
-    product_negative_themes[
-        "overall_customer_impact"
-    ]
-    *
-    product_negative_themes[
-        "impact_rank"
-    ]
-)
-
-
-# ---------------------------------------------------------
-# Cleanup
-# ---------------------------------------------------------
-
-product_negative_themes = (
-    product_negative_themes
-    .sort_values(
-        [
-            "merchant",
-            "impact_rank"
-        ]
-    )
-)
-
-
-# ---------------------------------------------------------
-# Save
-# ---------------------------------------------------------
-
-print("\nSaving updated product themes...")
-
-
-product_negative_themes.to_csv(
-    product_theme_file,
-    index=False
-)
+df.to_csv(product_theme_file, index=False)
 
 
 print("\n========== COMPLETE ==========")
-
-print(
-    f"Saved:\n{product_theme_file}"
-)
-
-
+print(f"Saved:\n{product_theme_file}")
 print("\nPreview:")
-
-print(
-    product_negative_themes.head(20)
-)
+print(df.head(20).to_string(index=False))
