@@ -2,11 +2,12 @@ import pandas as pd
 from pathlib import Path
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 
 # File paths
-METRICS_DIR = Path(
-    "data/processed/dashboard_metrics"
-)
+METRICS_DIR = PROJECT_ROOT / "data" / "processed" / "dashboard_metrics"
 
 MERCHANT_FILE = (
     METRICS_DIR /

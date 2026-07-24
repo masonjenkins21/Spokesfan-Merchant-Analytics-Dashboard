@@ -2,15 +2,14 @@ import pandas as pd
 from pathlib import Path
 
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+
+
 
 # File paths
-INPUT_FILE = Path(
-    "data/processed/reviews_with_roberta_sentiment.csv"
-)
+INPUT_FILE = PROJECT_ROOT / "data" / "processed" / "reviews_with_roberta_sentiment.csv"
 
-OUTPUT_DIR = Path(
-    "data/processed/dashboard_metrics"
-)
+OUTPUT_DIR = PROJECT_ROOT / "data" / "processed" / "dashboard_metrics"
 
 OUTPUT_DIR.mkdir(
     parents=True,

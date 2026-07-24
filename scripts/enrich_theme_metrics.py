@@ -1,5 +1,5 @@
 """
-Script 21 - Create Dashboard Metrics
+Enrich Theme Metrics
 
 Purpose:
     Validate and enrich product_negative_themes.csv with consistent impact
@@ -41,7 +41,7 @@ required_columns = [
 missing = [column for column in required_columns if column not in df.columns]
 if missing:
     raise ValueError(
-        "Run Script 20 first. Missing required columns: "
+        "Run build_theme_metrics.py first. Missing required columns: "
         f"{missing}"
     )
 

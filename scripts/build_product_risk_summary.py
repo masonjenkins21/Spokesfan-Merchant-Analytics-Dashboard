@@ -91,7 +91,7 @@ missing_columns = [
 
 if missing_columns:
     raise ValueError(
-        "Run Scripts 14 and 21 first. "
+        "Run build_theme_metrics.py and enrich_theme_metrics.py first. "
         f"Missing required columns: {missing_columns}"
     )
 

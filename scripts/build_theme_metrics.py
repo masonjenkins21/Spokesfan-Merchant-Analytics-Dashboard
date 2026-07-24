@@ -1,5 +1,5 @@
 """
-Script 20 - Create Negative Theme Metrics
+Build Negative Theme Metrics
 
 Purpose:
     Build product- and merchant-level negative theme datasets from actual
@@ -11,13 +11,15 @@ Creates:
 """
 
 from pathlib import Path
+import sys
 
 import pandas as pd
 
-from dashboard_review_logic import prepare_review_data
-
-
 project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from src.review_logic import prepare_review_data
 processed_path = project_root / "data" / "processed"
 dashboard_path = processed_path / "dashboard_metrics"
 
