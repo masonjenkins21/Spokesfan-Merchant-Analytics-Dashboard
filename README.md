@@ -99,6 +99,4 @@ The cleaned report copy is located at:
 
 ```text
 dashboard/Spokesfan_Merchant_Analytics_Dashboard_Cleaned.pbix
-```
-
-A duplicate hidden merchant slicer was removed from the Product Performance page. The semantic model itself was preserved because removing or merging model tables cannot be validated without Power BI Desktop.
+```git st
