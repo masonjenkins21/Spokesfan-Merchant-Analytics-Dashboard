@@ -36,6 +36,7 @@ import pandas as pd
 
 HIGHLIGHTS_PER_SENTIMENT = 3
 MIN_CONFIDENCE = 0.50
+RECENT_CONCERN_DAYS = 90
 
 project_root = Path(__file__).resolve().parent.parent
 processed_path = project_root / "data" / "processed"
@@ -893,12 +894,28 @@ required_columns = [
     "roberta_label",
     "roberta_confidence",
     "rating",
+    "review_date",
 ]
 
 missing_columns = [column for column in required_columns if column not in df.columns]
 
 if missing_columns:
     raise ValueError(f"Missing required columns: {missing_columns}")
+
+df["review_date"] = (
+    pd.to_datetime(
+        df["review_date"],
+        format="mixed",
+        errors="coerce",
+        utc=True,
+    )
+    .dt.tz_convert(None)
+)
+
+if df["review_date"].notna().sum() == 0:
+    raise ValueError(
+        "The review_date column does not contain any valid dates."
+    )
 
 print(f"Loaded {len(df)} reviews")
 print("\nOriginal RoBERTa sentiment distribution:")
@@ -1010,7 +1027,28 @@ df = df[df["roberta_confidence"] >= MIN_CONFIDENCE].copy()
 print("\nSelecting customer highlights...")
 
 positive_reviews = df[df["sentiment"] == "positive"].copy()
-negative_reviews = df[df["sentiment"] == "negative"].copy()
+
+# Customer concerns are limited to the most recent review activity.
+# The window is anchored to the latest valid date in the dataset rather than
+# the computer's current date, so the dashboard remains useful when working
+# with a static data extract.
+latest_review_date = df["review_date"].max()
+recent_cutoff_date = latest_review_date - pd.Timedelta(
+    days=RECENT_CONCERN_DAYS
+)
+
+negative_reviews = df[
+    (df["sentiment"] == "negative")
+    & (df["review_date"] >= recent_cutoff_date)
+    & (df["review_date"] <= latest_review_date)
+].copy()
+
+print(
+    "Customer concerns limited to reviews from "
+    f"{recent_cutoff_date.date()} through "
+    f"{latest_review_date.date()} "
+    f"({RECENT_CONCERN_DAYS} days)."
+)
 
 negative_reviews = negative_reviews[
     ~negative_reviews["review_text"].apply(is_customer_caused_damage)
@@ -1210,6 +1248,31 @@ highlights["feedback_excerpt"] = (
     highlights["customer_feedback"]
     .apply(create_excerpt)
 )
+
+# Validate the rolling 90-day customer-concern requirement before
+# removing review_date from the final Power BI export schema.
+concern_dates = highlights.loc[
+    highlights["highlight_type"] == "Customer Concern",
+    "review_date",
+]
+
+if concern_dates.isna().any():
+    raise ValueError(
+        "Customer Concern highlights contain missing review dates."
+    )
+
+if not concern_dates.empty:
+    if concern_dates.min() < recent_cutoff_date:
+        raise ValueError(
+            "Customer Concern highlights include reviews older than "
+            f"the {RECENT_CONCERN_DAYS}-day cutoff."
+        )
+
+    if concern_dates.max() > latest_review_date:
+        raise ValueError(
+            "Customer Concern highlights include dates after the "
+            "latest review date."
+        )
 
 highlights["feedback_priority"] = "Low"
 
