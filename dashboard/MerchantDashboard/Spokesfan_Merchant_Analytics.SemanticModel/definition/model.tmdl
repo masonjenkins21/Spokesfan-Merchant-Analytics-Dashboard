@@ -1,0 +1,40 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: en-US
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_QueryOrder = ["Merchant Summary","Product Catalog","Product Sentiment","Product Performance Metrics","Monthly Trends","Product Themes","Review Quality","Merchant Sentiment","Merchant Sentiment Distribution","Recent Product Performance","Review Details","Product Risk Summary","Customer Voice Highlights","Dim Product Old","Dim Merchant","Product Family Lookup","Dim Product Family Lookup","Dim Product"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table 'Merchant Summary'
+ref table 'Product Catalog'
+ref table 'Product Sentiment'
+ref table 'Product Performance Metrics'
+ref table 'Monthly Trends'
+ref table DateTableTemplate_24af57a9-ccd7-4921-8bd1-2489f123fca4
+ref table LocalDateTable_44cac68f-bf97-4e59-8592-49ff45dd9c34
+ref table 'Product Themes'
+ref table 'Review Quality'
+ref table 'Merchant Sentiment'
+ref table 'Merchant Sentiment Distribution'
+ref table 'Recent Product Performance'
+ref table 'Review Details'
+ref table LocalDateTable_381f18d8-4e5d-4d79-b017-dd6bab5fac4d
+ref table 'Product Risk Summary'
+ref table 'Customer Voice Highlights'
+ref table 'Dim Product Old'
+ref table 'Dim Merchant'
+ref table 'Product Family Lookup'
+ref table 'Dim Product Family Lookup'
+ref table 'Unmatched Product Keys'
+ref table 'Unmatched Product Details'
+ref table 'Dim Product'
+
+ref cultureInfo en-US
+

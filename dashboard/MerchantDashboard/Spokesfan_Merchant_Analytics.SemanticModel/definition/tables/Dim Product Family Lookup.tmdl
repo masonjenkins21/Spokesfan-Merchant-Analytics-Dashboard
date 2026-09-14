@@ -1,0 +1,148 @@
+table 'Dim Product Family Lookup'
+	lineageTag: 8e54ba4e-7ecc-4937-a051-6d12e0621b09
+
+	column merchant
+		dataType: string
+		lineageTag: 2475e737-e1ec-4d22-8f48-dca99c490bc2
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 3f641491-ab5d-4363-8246-f28b724f757d
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 8da8031b-08e3-47a7-b736-5a030f8a3a91
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_family
+		dataType: string
+		lineageTag: ed4989fe-b6e9-420f-899b-9bc28b6a9fd5
+		summarizeBy: none
+		sourceColumn: product_family
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Product Family Lookup' = m
+		mode: import
+		source =
+				let
+				    Source = #"Product Performance Metrics",
+				    #"Removed Other Columns" = Table.SelectColumns(Source,{"merchant", "product_name", "product_key"}),
+				    #"Added Custom" = Table.AddColumn(#"Removed Other Columns", "product_family", each let
+				    Merchant = Text.Lower([merchant]),
+				    Product = Text.Lower([product_name])
+				in
+				    if Merchant = "threeshipbeauty" then
+				        if Text.Contains(Product, "radiance") then "Radiance Collection"
+				        else if Text.Contains(Product, "jelly drops") then "Jelly Drops Collection"
+				        else if Text.Contains(Product, "skin hero")
+				            or Text.Contains(Product, "skinhero")
+				            or Text.Contains(Product, "bio retinol")
+				            or Text.Contains(Product, "bio-retinol")
+				            or Text.Contains(Product, "dream") then "Bio-Retinol Collection"
+				        else if Text.Contains(Product, "firm") then "Firming Collection"
+				        else if Text.Contains(Product, "bright")
+				            or Text.Contains(Product, "first light") then "Brightening Eye Collection"
+				        else if Text.Contains(Product, "off duty") then "Off Duty Eye Masks"
+				        else if Text.Contains(Product, "lip")
+				            or Text.Contains(Product, "softserve") then "Lip Treatment Collection"
+				        else if Text.Contains(Product, "purify") then "Purify Collection"
+				        else if Text.Contains(Product, "restore")
+				            or Text.Contains(Product, "replenish")
+				            or Text.Contains(Product, "barrier") then "Barrier Repair Collection"
+				        else if Text.Contains(Product, "hydration")
+				            or Text.Contains(Product, "hydrate")
+				            or Text.Contains(Product, "soothe") then "Hydration Collection"
+				        else if Text.Contains(Product, "serum set")
+				            or Text.Contains(Product, "serum duo")
+				            or Text.Contains(Product, "day night serum") then "Serum Sets"
+				        else if Text.Contains(Product, "boost")
+				            or Text.Contains(Product, "glow jojoba") then "Facial Oil Collection"
+				        else if Text.Contains(Product, "best seller") then "Best Sellers Kits"
+				        else if Text.Contains(Product, "cleanser")
+				            or Text.Contains(Product, "harmony")
+				            or Text.Contains(Product, "refresh") then "Cleansers"
+				        else if Text.Contains(Product, "fresh start")
+				            or Text.Contains(Product, "superfruit") then "Exfoliation and Masks"
+				        else if Text.Contains(Product, "eye cream")
+				            or Text.Contains(Product, "under eye") then "Eye Care"
+				        else if Text.Contains(Product, "gift card") then "Gift Cards"
+				        else if Text.Contains(Product, "pouch")
+				            or Text.Contains(Product, "tote")
+				            or Text.Contains(Product, "washcloth")
+				            or Text.Contains(Product, "hoodie") then "Accessories"
+				        else "Other"
+				
+				    else if Merchant = "cheekbonebeauty" then
+				        if Text.Contains(Product, "lip and cheek")
+				            or Text.Contains(Product, "lip & cheek") then "Lip and Cheek"
+				        else if Text.Contains(Product, "lipstick") then "Lipstick"
+				        else if Text.Contains(Product, "lip oil") then "Lip Oils"
+				        else if Text.Contains(Product, "lipgloss")
+				            or Text.Contains(Product, "lip gloss") then "Lip Gloss"
+				        else if Text.Contains(Product, "lip pencil") then "Lip Pencils"
+				        else if Text.Contains(Product, "lip balm") then "Lip Balms"
+				        else if Text.Contains(Product, "lip kit")
+				            or Text.Contains(Product, "lip bundle") then "Lip Kits"
+				        else if Text.Contains(Product, "eyeliner")
+				            or Text.Contains(Product, "multi pencil") then "Eye and Multi Pencils"
+				        else if Text.Contains(Product, "eyeshadow") then "Eyeshadow"
+				        else if Text.Contains(Product, "blush")
+				            or Text.Contains(Product, "bronzer") then "Blush and Bronzer"
+				        else if Text.Contains(Product, "highlighter")
+				            or Text.Contains(Product, "illuminating primer")
+				            or Text.Contains(Product, "moondust")
+				            or Text.Contains(Product, "moon dust") then "Highlighter and Primer"
+				        else if Text.Contains(Product, "gift card") then "Gift Cards"
+				        else if Text.Contains(Product, "kit")
+				            or Text.Contains(Product, "duo")
+				            or Text.Contains(Product, "trio")
+				            or Text.Contains(Product, "four pack") then "Kits and Sets"
+				        else if Text.Contains(Product, "brush")
+				            or Text.Contains(Product, "sponge")
+				            or Text.Contains(Product, "sharpener")
+				            or Text.Contains(Product, "refill pan")
+				            or Text.Contains(Product, "component") then "Tools and Accessories"
+				        else if Text.Contains(Product, "tee")
+				            or Text.Contains(Product, "mug")
+				            or Text.Contains(Product, "gift box") then "Merchandise"
+				        else "Other"
+				
+				    else if Merchant = "provinceapothecary" then
+				        if Text.Contains(Product, "serum")
+				            or Text.Contains(Product, "spot concentrate") then "Serums and Treatments"
+				        else if Text.Contains(Product, "oil cleanser")
+				            or Text.Contains(Product, "make up remover") then "Cleansers"
+				        else if Text.Contains(Product, "lip balm") then "Lip Care"
+				        else if Text.Contains(Product, "sex oil")
+				            or Text.Contains(Product, "lover's oil") then "Body and Intimacy Oils"
+				        else if Text.Contains(Product, "brush")
+				            or Text.Contains(Product, "roller") then "Facial Tools"
+				        else if Text.Contains(Product, "sheet mask") then "Masks"
+				        else if Text.Contains(Product, "eczema balm") then "Balms and Skin Relief"
+				        else if Text.Contains(Product, "incense")
+				            or Text.Contains(Product, "incense holder") then "Home and Wellness"
+				        else if Text.Contains(Product, "kit")
+				            or Text.Contains(Product, "set") then "Kits and Sets"
+				        else "Other"
+				
+				    else "Other"),
+				    #"Removed Duplicates" = Table.Distinct(#"Added Custom", {"product_key"})
+				in
+				    #"Removed Duplicates"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

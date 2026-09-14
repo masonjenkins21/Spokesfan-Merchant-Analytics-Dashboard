@@ -1,0 +1,61 @@
+table 'Dim Product'
+	lineageTag: 38a788d6-fe75-4410-ba6a-b55719199351
+
+	column merchant
+		dataType: string
+		lineageTag: c0df0db1-cd87-4941-9fd3-e2c5922fbedf
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 17a0a958-7bc4-4346-b6ad-e671a5642358
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 95aa4493-2d54-4859-9eac-06ec8236c919
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_family
+		dataType: string
+		lineageTag: 4a54cb1a-9134-4d4e-9bbc-b18a6de2d2e6
+		summarizeBy: none
+		sourceColumn: product_family
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Product' = m
+		mode: import
+		source =
+				let
+				    Source = #"Product Performance Metrics",
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"total_reviews", "negative_reviews", "average_rating"}),
+				    #"Removed Other Columns" = Table.SelectColumns(#"Removed Columns",{"merchant", "product_name", "product_key"}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Removed Other Columns",{{"merchant", Text.Trim, type text}, {"product_name", Text.Trim, type text}, {"product_key", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}, {"product_name", Text.Clean, type text}, {"product_key", Text.Clean, type text}}),
+				    #"Trimmed Text1" = Table.TransformColumns(#"Cleaned Text",{{"merchant", Text.Trim, type text}}),
+				    #"Cleaned Text1" = Table.TransformColumns(#"Trimmed Text1",{{"merchant", Text.Clean, type text}}),
+				    #"Trimmed Text2" = Table.TransformColumns(#"Cleaned Text1",{{"product_name", Text.Trim, type text}}),
+				    #"Cleaned Text2" = Table.TransformColumns(#"Trimmed Text2",{{"product_name", Text.Clean, type text}}),
+				    #"Trimmed Text3" = Table.TransformColumns(#"Cleaned Text2",{{"product_key", Text.Trim, type text}}),
+				    #"Cleaned Text3" = Table.TransformColumns(#"Trimmed Text3",{{"product_key", Text.Clean, type text}}),
+				    #"Lowercased Text" = Table.TransformColumns(#"Cleaned Text3",{{"product_key", Text.Lower, type text}, {"merchant", Text.Lower, type text}}),
+				    #"Removed Duplicates" = Table.Distinct(#"Lowercased Text", {"product_key"}),
+				    #"Merged Queries" = Table.NestedJoin(#"Removed Duplicates", {"product_key"}, #"Dim Product Family Lookup", {"product_key"}, "Dim Product Family Lookup", JoinKind.LeftOuter),
+				    #"Expanded Dim Product Family Lookup" = Table.ExpandTableColumn(#"Merged Queries", "Dim Product Family Lookup", {"product_family"}, {"product_family"})
+				in
+				    #"Expanded Dim Product Family Lookup"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

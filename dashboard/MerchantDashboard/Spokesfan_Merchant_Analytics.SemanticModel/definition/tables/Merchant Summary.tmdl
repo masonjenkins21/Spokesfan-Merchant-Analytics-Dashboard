@@ -1,0 +1,169 @@
+table 'Merchant Summary'
+	lineageTag: 42a94be7-718b-4664-9bc7-18ac04e3e601
+
+	measure 'Total Merchant Reviews' =
+			
+			SUM(
+			    'Merchant Summary'[total_reviews]
+			)
+		formatString: 0
+		lineageTag: 93b07079-23d5-4881-b3bd-695d51e7f491
+
+	measure 'Total Merchant Reviews Display' =
+			
+			FORMAT(
+			    [Total Merchant Reviews],
+			    "#,0"
+			)
+		lineageTag: cd90efb2-1107-4fd3-86e7-ae870462f37f
+
+	measure 'Merchant Review Count Test' =
+			
+			SUM(
+			    'Merchant Summary'[total_reviews]
+			)
+		formatString: 0
+		lineageTag: 3e8529b9-cf30-405a-98fc-bf1869c5e36e
+
+	measure 'Merchant Negative Review Rate' =
+			
+			DIVIDE(
+			    SUMX(
+			        'Product Sentiment',
+			        'Product Sentiment'[negative_percent]
+			            * 'Product Sentiment'[total_reviews]
+			    ),
+			    [Merchant Total Reviews],
+			    BLANK()
+			)
+		lineageTag: 88b064c8-dda1-481d-abf8-cf4ab13c86f4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Merchant Average Rating' =
+			
+			DIVIDE(
+			    SUMX(
+			        'Product Sentiment',
+			        'Product Sentiment'[average_rating]
+			            * 'Product Sentiment'[total_reviews]
+			    ),
+			    [Merchant Total Reviews],
+			    BLANK()
+			)
+		lineageTag: 6e47523d-17a4-4a2b-b03b-04424ca6906e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column merchant
+		dataType: string
+		lineageTag: 4fed2181-d6b1-4811-bd60-8dc0da924407
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 8bde3301-1577-456a-b24c-6696c73d1fa6
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		changedProperty = DataType
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_products
+		dataType: int64
+		formatString: 0
+		lineageTag: f5d5200d-8e4d-4990-b3a9-34830004a660
+		summarizeBy: sum
+		sourceColumn: total_products
+
+		annotation SummarizationSetBy = Automatic
+
+	column average_rating
+		dataType: double
+		lineageTag: b12413c5-bb2b-403b-ba6e-27b1669bf771
+		summarizeBy: sum
+		sourceColumn: average_rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column positive_percent
+		dataType: double
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 79b400fc-ed8a-406e-be08-d2897a3cc974
+		summarizeBy: average
+		sourceColumn: positive_percent
+
+		annotation SummarizationSetBy = User
+
+	column negative_percent
+		dataType: double
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a0f9ce41-0697-46b0-ba29-e03e8a9a91b2
+		summarizeBy: sum
+		sourceColumn: negative_percent
+
+		annotation SummarizationSetBy = Automatic
+
+	column average_review_length
+		dataType: double
+		lineageTag: 2479034d-6fca-4e06-821f-81fcb47d0a79
+		summarizeBy: sum
+		sourceColumn: average_review_length
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column average_sentiment_confidence
+		dataType: double
+		lineageTag: 17df00b3-8a27-4bbd-a157-ddd8540d82eb
+		summarizeBy: sum
+		sourceColumn: average_sentiment_confidence
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column medium_risk_products
+		dataType: int64
+		formatString: 0
+		lineageTag: bb5b25cc-7509-4207-b497-dec61411970d
+		summarizeBy: sum
+		sourceColumn: medium_risk_products
+
+		annotation SummarizationSetBy = Automatic
+
+	column high_risk_products
+		dataType: int64
+		formatString: 0
+		lineageTag: 90dc2e57-c56d-41f2-bd18-663362e6cebd
+		summarizeBy: sum
+		sourceColumn: high_risk_products
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Merchant Summary' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\merchant_dashboard_summary.csv"),[Delimiter=",", Columns=10, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"total_reviews", Int64.Type}, {"total_products", Int64.Type}, {"average_rating", type number}, {"positive_percent", type number}, {"negative_percent", type number}, {"average_review_length", type number}, {"average_sentiment_confidence", type number}, {"medium_risk_products", Int64.Type}, {"high_risk_products", Int64.Type}}),
+				    #"Divided Column" = Table.TransformColumns(#"Changed Type", {{"positive_percent", each _ / 100, type number}}),
+				    #"Divided Column1" = Table.TransformColumns(#"Divided Column", {{"negative_percent", each _ / 100, type number}}),
+				    #"Trimmed Text" = Table.TransformColumns(Table.TransformColumnTypes(#"Divided Column1", {{"total_reviews", type text}}, "en-US"),{{"merchant", Text.Trim, type text}, {"total_reviews", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}, {"total_reviews", Text.Clean, type text}})
+				in
+				    #"Cleaned Text"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

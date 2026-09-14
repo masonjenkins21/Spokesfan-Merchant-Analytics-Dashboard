@@ -1,0 +1,46 @@
+table 'Dim Merchant'
+	lineageTag: aac82b42-0231-46d7-9a06-ce993511c847
+
+	column merchant
+		dataType: string
+		lineageTag: 3b155eec-99ab-4c3d-a2fb-7735a0d8204a
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Merchant Display'
+		dataType: string
+		lineageTag: f746c3f1-476a-4587-9b9c-8b2c4ea5a1a6
+		summarizeBy: none
+		sourceColumn: Merchant Display
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_family
+		dataType: string
+		lineageTag: 208957b7-d06f-4ac8-9f83-e2f8b1c08ad0
+		summarizeBy: none
+		sourceColumn: product_family
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Merchant' = m
+		mode: import
+		source =
+				let
+				    Source = #"Dim Product Old",
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"product_name", "product_key"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Columns"),
+				    #"Added Custom" = Table.AddColumn(#"Removed Duplicates", "Merchant Display", each if [merchant] = "cheekbonebeauty" then "Cheekbone Beauty"
+				else if [merchant] = "provinceapothecary" then "Province Apothecary"
+				else if [merchant] = "threeshipbeauty" then "Three Ships Beauty"
+				else [merchant]),
+				    #"Removed Duplicates1" = Table.Distinct(#"Added Custom", {"merchant"})
+				in
+				    #"Removed Duplicates1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

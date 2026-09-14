@@ -1,0 +1,451 @@
+table 'Product Risk Summary'
+	lineageTag: c44441a4-d540-4e4a-a2de-42c447d2c3a0
+
+	measure Measure
+		lineageTag: 67bb5ac9-690d-4cd5-a263-3f37eee02d22
+
+		annotation 43dbc3e8-3a1c-4b6f-9923-b49ff7d6691c = True
+
+	measure 'Top Concern Summary' =
+			
+			VAR ConcernSummary =
+			    FILTER(
+			        ADDCOLUMNS(
+			            SUMMARIZE(
+			                'Product Risk Summary',
+			                'Product Risk Summary'[primary_customer_concern]
+			            ),
+			            "TotalMentions",
+			                CALCULATE(
+			                    SUM(
+			                        'Product Risk Summary'[primary_concern_mentions]
+			                    )
+			                ),
+			            "TotalConcernScore",
+			                CALCULATE(
+			                    SUM(
+			                        'Product Risk Summary'[primary_concern_score]
+			                    )
+			                )
+			        ),
+			        NOT ISBLANK(
+			            'Product Risk Summary'[primary_customer_concern]
+			        )
+			            && 'Product Risk Summary'[primary_customer_concern]
+			                <> "Other Feedback"
+			    )
+			
+			VAR TopConcernRow =
+			    TOPN(
+			        1,
+			        ConcernSummary,
+			        [TotalMentions], DESC,
+			        [TotalConcernScore], DESC,
+			        'Product Risk Summary'[primary_customer_concern], ASC
+			    )
+			
+			VAR ConcernName =
+			    MAXX(
+			        TopConcernRow,
+			        'Product Risk Summary'[primary_customer_concern]
+			    )
+			
+			VAR MentionCount =
+			    MAXX(
+			        TopConcernRow,
+			        [TotalMentions]
+			    )
+			
+			RETURN
+			    IF(
+			        ISBLANK(ConcernName),
+			        "No actionable concerns identified",
+			        "Top Customer Concern: "
+			            & ConcernName
+			            & " · "
+			            & FORMAT(MentionCount, "#,0")
+			            & " mentions"
+			    )
+		lineageTag: 748dd124-82fa-4751-b4bc-24c53d2f5e96
+
+	measure 'Risk Background Color' =
+			
+			VAR RiskLevel =
+			    SELECTEDVALUE(
+			        'Product Risk Summary'[risk_level]
+			    )
+			RETURN
+			    SWITCH(
+			        RiskLevel,
+			        "High", "#F8E4E4",
+			        "Medium", "#FBF0DD",
+			        "Low", "#E5F1EA",
+			        "Not Assessed", "#ECECEC",
+			        "#FFFFFF"
+			    )
+		lineageTag: 14006fc3-e312-443e-9217-3cf1c6744b41
+
+	measure 'Risk Font Color' =
+			
+			VAR RiskLevel =
+			    SELECTEDVALUE(
+			        'Product Risk Summary'[risk_level]
+			    )
+			RETURN
+			    SWITCH(
+			        RiskLevel,
+			        "High", "#A63D3D",
+			        "Medium", "#A36C18",
+			        "Low", "#3F775B",
+			        "Not Assessed", "#666666",
+			        "#252525"
+			    )
+		lineageTag: ade76201-752f-4034-af20-025e8fe8d819
+
+	measure 'Family Risk Score' =
+			
+			DIVIDE(
+			    SUMX(
+			        'Product Risk Summary',
+			        'Product Risk Summary'[product_risk_score]
+			            * 'Product Risk Summary'[total_reviews]
+			    ),
+			    SUM('Product Risk Summary'[total_reviews]),
+			    BLANK()
+			)
+		lineageTag: 89a89b2c-f625-4dcf-ba4d-3a5a66c53ae2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Family Priority Rank' =
+			
+			VAR CurrentRiskScore =
+			    [Family Risk Score]
+			RETURN
+			    IF(
+			        NOT ISBLANK(CurrentRiskScore),
+			        RANKX(
+			            ALLSELECTED('Dim Product Old'[product_family]),
+			            [Family Risk Score],
+			            ,
+			            DESC,
+			            DENSE
+			        )
+			    )
+		formatString: 0
+		lineageTag: 88d99920-b86e-40a8-8b11-a696f67fd9d5
+
+	measure 'Family Primary Customer Concern' =
+			
+			VAR ConcernTable =
+			    ADDCOLUMNS(
+			        VALUES('Product Risk Summary'[primary_customer_concern]),
+			        "ConcernMentions",
+			            CALCULATE(
+			                SUM('Product Risk Summary'[primary_concern_mentions])
+			            )
+			    )
+			VAR TopConcern =
+			    TOPN(
+			        1,
+			        FILTER(
+			            ConcernTable,
+			            NOT ISBLANK('Product Risk Summary'[primary_customer_concern])
+			        ),
+			        [ConcernMentions], DESC,
+			        'Product Risk Summary'[primary_customer_concern], ASC
+			    )
+			RETURN
+			    CONCATENATEX(
+			        TopConcern,
+			        'Product Risk Summary'[primary_customer_concern],
+			        ", "
+			    )
+		lineageTag: 1719ee94-23b9-4c26-825c-8701cb680f33
+
+	measure 'Family Risk Level' =
+			
+			VAR HighestRiskLevel =
+			    MAXX(
+			        VALUES('Product Risk Summary'[risk_level]),
+			        SWITCH(
+			            'Product Risk Summary'[risk_level],
+			            "High", 3,
+			            "Medium", 2,
+			            "Low", 1,
+			            0
+			        )
+			    )
+			RETURN
+			    SWITCH(
+			        HighestRiskLevel,
+			        3, "High",
+			        2, "Medium",
+			        1, "Low",
+			        BLANK()
+			    )
+		lineageTag: 9ed9b68f-f6cc-47f5-84ce-5b933749c761
+
+	column priority_rank
+		dataType: int64
+		lineageTag: 384eca7e-0e0e-400f-8bcf-035135b41221
+		summarizeBy: none
+		sourceColumn: priority_rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column merchant
+		dataType: string
+		lineageTag: db771b05-fae2-47ed-8ff6-b809436458f0
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 7a5172d1-b537-475c-bffc-9d1e26eef3b0
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column primary_customer_concern
+		dataType: string
+		lineageTag: 1d4b0532-f771-46b8-9a25-afc776234ef7
+		summarizeBy: none
+		sourceColumn: primary_customer_concern
+
+		annotation SummarizationSetBy = Automatic
+
+	column primary_concern_mentions
+		dataType: int64
+		formatString: 0
+		lineageTag: 13a5ae44-be23-4edb-8dd6-205de12a23ad
+		summarizeBy: sum
+		sourceColumn: primary_concern_mentions
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_negative_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 75af9484-78d0-48e9-ac83-cf0d03c109e9
+		summarizeBy: sum
+		sourceColumn: total_negative_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_risk_score
+		dataType: double
+		lineageTag: 58a28c8a-129c-4452-b041-fcaecb719a41
+		summarizeBy: sum
+		sourceColumn: product_risk_score
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column risk_level
+		dataType: string
+		lineageTag: 04841e83-7007-4a9f-a26d-100e4ba3953b
+		summarizeBy: none
+		sourceColumn: risk_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_volume_level
+		dataType: string
+		lineageTag: 6fd51693-71d7-48d1-ab62-db7094f0501e
+		summarizeBy: none
+		sourceColumn: review_volume_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 07b28f74-ef1a-4363-9e13-9cd3eb7eb2d9
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column negative_review_rate
+		dataType: double
+		lineageTag: 152918c9-d72d-4f4d-9900-72d8320e44cf
+		summarizeBy: sum
+		sourceColumn: negative_review_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column average_rating
+		dataType: double
+		lineageTag: 6d92b78e-23bc-4c6b-b80a-fa3ef20caa14
+		summarizeBy: sum
+		sourceColumn: average_rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column primary_concern_severity
+		dataType: double
+		lineageTag: 21a07587-c2a7-45f1-9ef3-c563db791df7
+		summarizeBy: sum
+		sourceColumn: primary_concern_severity
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column primary_concern_score
+		dataType: double
+		lineageTag: 622d534d-73aa-4f77-86ce-33f4f217875d
+		summarizeBy: sum
+		sourceColumn: primary_concern_score
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column distinct_concern_types
+		dataType: int64
+		formatString: 0
+		lineageTag: b51ff763-77ae-40df-8d14-3a80236959be
+		summarizeBy: sum
+		sourceColumn: distinct_concern_types
+
+		annotation SummarizationSetBy = Automatic
+
+	column severity_weighted_issue_rate
+		dataType: double
+		lineageTag: 0f270736-f86e-459c-b9e9-db8d3f0c8f2a
+		summarizeBy: sum
+		sourceColumn: severity_weighted_issue_rate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column skin_reaction_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 5eafb168-b800-413a-bd15-1839a540ba5f
+		summarizeBy: sum
+		sourceColumn: skin_reaction_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column shipping_issue_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 6634bb32-5cf4-4ca3-a253-3201bb349ea7
+		summarizeBy: sum
+		sourceColumn: shipping_issue_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column packaging_issue_count
+		dataType: int64
+		formatString: 0
+		lineageTag: f8f8da9b-32bf-4370-8632-ced7b30e9154
+		summarizeBy: sum
+		sourceColumn: packaging_issue_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_performance_issue_count
+		dataType: int64
+		formatString: 0
+		lineageTag: c217b846-6f43-43f9-8fd9-15c3c357abbd
+		summarizeBy: sum
+		sourceColumn: product_performance_issue_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column price_value_issue_count
+		dataType: int64
+		formatString: 0
+		lineageTag: d1225e0f-5b79-4447-8991-21900eb22d55
+		summarizeBy: sum
+		sourceColumn: price_value_issue_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column texture_issue_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 4c2992b4-81fd-438a-a7f4-1e9a312df0ab
+		summarizeBy: sum
+		sourceColumn: texture_issue_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column color_shade_issue_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 664ddb3e-9c41-4067-a480-3ee2e5c879fe
+		summarizeBy: sum
+		sourceColumn: color_shade_issue_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column hydration_issue_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 2a2d7c8a-e8c0-4b93-8116-89a15001357f
+		summarizeBy: sum
+		sourceColumn: hydration_issue_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column scent_issue_count
+		dataType: int64
+		formatString: 0
+		lineageTag: 19bbb617-4641-43e8-bf7e-4f1076b5bff6
+		summarizeBy: sum
+		sourceColumn: scent_issue_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column other_feedback_count
+		dataType: int64
+		formatString: 0
+		lineageTag: ba8790e2-eaee-4327-8a3a-46b59de58518
+		summarizeBy: sum
+		sourceColumn: other_feedback_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 2bd292ab-066e-4590-852f-4d3067729118
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Product Risk Summary' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\product_risk_summary.csv"),[Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers1" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers1",{{"priority_rank", Int64.Type}, {"product_risk_score", type number}, {"total_reviews", Int64.Type}, {"total_negative_reviews", Int64.Type}, {"negative_review_rate", type number}, {"average_rating", type number}, {"primary_concern_mentions", Int64.Type}, {"primary_concern_severity", type number}, {"primary_concern_score", type number}, {"distinct_concern_types", Int64.Type}, {"severity_weighted_issue_rate", type number}, {"skin_reaction_count", Int64.Type}, {"shipping_issue_count", Int64.Type}, {"packaging_issue_count", Int64.Type}, {"product_performance_issue_count", Int64.Type}, {"price_value_issue_count", Int64.Type}, {"texture_issue_count", Int64.Type}, {"color_shade_issue_count", Int64.Type}, {"hydration_issue_count", Int64.Type}, {"other_feedback_count", Int64.Type}, {"scent_issue_count", Int64.Type}}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"merchant", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}}),
+				    #"Trimmed Text1" = Table.TransformColumns(#"Cleaned Text",{{"merchant", Text.Trim, type text}, {"product_name", Text.Trim, type text}}),
+				    #"Cleaned Text1" = Table.TransformColumns(#"Trimmed Text1",{{"merchant", Text.Clean, type text}, {"product_name", Text.Clean, type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Cleaned Text1", "product_key", each Text.Lower(Text.Trim([merchant]))
+				    & "|"
+				    & Text.Lower(Text.Trim([product_name])))
+				in
+				    #"Added Custom"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

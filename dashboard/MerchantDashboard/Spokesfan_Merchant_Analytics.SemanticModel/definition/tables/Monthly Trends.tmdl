@@ -1,0 +1,126 @@
+table 'Monthly Trends'
+	lineageTag: 066a7014-1f8d-4e73-b487-625dfe44c11d
+
+	measure 'Positive Sentiment %' =
+			
+			DIVIDE(
+			    AVERAGE('Monthly Trends'[positive_percent]),
+			    100
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: baa5db1a-4a8f-4158-b554-36e8968b0b45
+
+	measure 'Monthly Review Volume' =
+			
+			SUM(
+			    'Monthly Trends'[total_reviews]
+			)
+		formatString: 0
+		lineageTag: 83d9fdae-d7c3-4ba1-819a-0b954c7b99f6
+
+	measure 'Month Recency Rank' =
+			
+			VAR CurrentMonth =
+			    MAX('Monthly Trends'[month])
+			RETURN
+			    RANKX(
+			        ALLSELECTED('Monthly Trends'[month]),
+			        CALCULATE(MAX('Monthly Trends'[month])),
+			        CurrentMonth,
+			        DESC,
+			        DENSE
+			    )
+		formatString: 0
+		lineageTag: 870c32e0-ac92-4877-862e-d7f9e50a4fdb
+
+	column merchant
+		dataType: string
+		lineageTag: 1ea51a98-d297-4a9b-ba92-e7d4f4465168
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column month
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 01de88db-54fd-455d-9ecb-b55ed7613c6f
+		summarizeBy: none
+		sourceColumn: month
+
+		variation Variation
+			isDefault
+			relationship: e57023c0-7f84-4de2-8a00-3bc30a35d1aa
+			defaultHierarchy: LocalDateTable_44cac68f-bf97-4e59-8592-49ff45dd9c34.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column total_reviews
+		dataType: int64
+		formatString: #,0
+		lineageTag: 5bb92e7d-e864-46e6-9511-5df5b464c010
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column positive_percent
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 6ed19442-71ae-40fd-a7a4-ef6d1c129e62
+		summarizeBy: sum
+		sourceColumn: positive_percent
+
+		annotation SummarizationSetBy = Automatic
+
+	column negative_percent
+		dataType: double
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 02b47e6f-c4b5-401d-a725-7d05a0738901
+		summarizeBy: sum
+		sourceColumn: negative_percent
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Year' =
+			
+			FORMAT(
+			    'Monthly Trends'[month],
+			    "MMM yyyy"
+			)
+		lineageTag: d80c0c42-ad0d-430b-92b0-96da06443e3c
+		summarizeBy: none
+		sortByColumn: 'Month Sort'
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Sort' =
+			
+			YEAR('Monthly Trends'[month]) * 100
+			    + MONTH('Monthly Trends'[month])
+		formatString: 0
+		lineageTag: b396ffaa-dd9f-4b97-9acb-631fe7133d01
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Monthly Trends' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\monthly_sentiment_trends.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"month", type date}, {"total_reviews", Int64.Type}, {"positive_percent", type number}, {"negative_percent", type number}}),
+				    #"Divided Column" = Table.TransformColumns(#"Changed Type", {{"positive_percent", each _ / 100, type number}}),
+				    #"Divided Column1" = Table.TransformColumns(#"Divided Column", {{"negative_percent", each _ / 100, type number}})
+				in
+				    #"Divided Column1"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

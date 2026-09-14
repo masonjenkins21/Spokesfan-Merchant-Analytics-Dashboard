@@ -1,0 +1,63 @@
+table 'Product Catalog'
+	lineageTag: 4cc3d666-99f3-4afa-83e2-96bff6621857
+
+	column merchant
+		dataType: string
+		lineageTag: 2a193c86-d7b8-4213-9089-4d44dd7c12eb
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 8e25a53a-8c88-4244-a366-15ebfed6f376
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_url
+		dataType: string
+		lineageTag: 4cfead86-2931-479d-b2dc-336403477df3
+		summarizeBy: none
+		sourceColumn: product_url
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: int64
+		formatString: #,0
+		lineageTag: 59eef633-44ca-4122-9c82-2a7dc700c7bb
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 3057a18f-c5e0-4cc8-8eb7-c9df14e229e1
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Product Catalog' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\product_catalog.csv"),[Delimiter=",", Columns=4, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"product_name", type text}, {"product_url", type text}, {"total_reviews", Int64.Type}}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"merchant", Text.Trim, type text}, {"product_name", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}, {"product_name", Text.Clean, type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Cleaned Text", "product_key", each Text.Lower(Text.Trim([merchant]))
+				    & "|"
+				    & Text.Lower(Text.Trim([product_name])))
+				in
+				    #"Added Custom"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

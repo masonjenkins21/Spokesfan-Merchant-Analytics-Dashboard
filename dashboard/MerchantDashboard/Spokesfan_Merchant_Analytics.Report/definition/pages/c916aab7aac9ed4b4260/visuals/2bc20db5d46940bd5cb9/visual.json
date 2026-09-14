@@ -1,0 +1,52 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "2bc20db5d46940bd5cb9",
+  "position": {
+    "x": 15.588984866595998,
+    "y": 592.381424930648,
+    "z": 14009,
+    "height": 32.217235390965065,
+    "width": 119.51555064390266,
+    "tabOrder": 14008
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Turn Reviews",
+                    "textStyle": {
+                      "fontSize": "12pt",
+                      "color": "#f5f7fa"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

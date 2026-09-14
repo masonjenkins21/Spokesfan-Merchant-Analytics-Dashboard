@@ -1,0 +1,57 @@
+table 'Dim Product Old'
+	lineageTag: bfb2704d-b95d-42bb-8072-204f0c49c489
+
+	column merchant
+		dataType: string
+		lineageTag: ec5293bf-db7a-49ee-9fb0-afff36e5baab
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 93c70f96-419e-4f8f-8d55-5eaa68964f0e
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: a702513a-786a-4b7d-b34c-753bf8316d88
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_family
+		dataType: string
+		lineageTag: 426f392e-7bf8-4eea-ba66-1718a6c15b85
+		summarizeBy: none
+		sourceColumn: product_family
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Dim Product Old' = m
+		mode: import
+		source =
+				let
+				    Source = #"Product Risk Summary",
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"priority_rank", "risk_level", "product_risk_score", "review_volume_level", "total_reviews", "total_negative_reviews", "negative_review_rate", "average_rating", "primary_customer_concern", "primary_concern_mentions", "primary_concern_severity", "primary_concern_score", "distinct_concern_types", "severity_weighted_issue_rate", "skin_reaction_count", "shipping_issue_count", "packaging_issue_count", "product_performance_issue_count", "price_value_issue_count", "texture_issue_count", "color_shade_issue_count", "hydration_issue_count", "scent_issue_count", "other_feedback_count"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Columns", {"product_key"}),
+				    #"Merged Queries" = Table.NestedJoin(#"Removed Duplicates", {"product_key"}, #"Product Family Lookup", {"product_key"}, "Product Family Lookup", JoinKind.LeftOuter),
+				    #"Expanded Product Family Lookup" = Table.ExpandTableColumn(#"Merged Queries", "Product Family Lookup", {"Product Family", "product_key"}, {"Product Family", "product_key.1"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded Product Family Lookup", {"product_key"}, #"Dim Product Family Lookup", {"product_key"}, "Dim Product Family Lookup", JoinKind.LeftOuter),
+				    #"Expanded Dim Product Family Lookup" = Table.ExpandTableColumn(#"Merged Queries1", "Dim Product Family Lookup", {"product_family"}, {"product_family"}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Expanded Dim Product Family Lookup",{"Product Family", "product_key.1"}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Removed Columns1",{{"merchant", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}}),
+				    #"Lowercased Text" = Table.TransformColumns(#"Cleaned Text",{{"merchant", Text.Lower, type text}})
+				in
+				    #"Lowercased Text"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

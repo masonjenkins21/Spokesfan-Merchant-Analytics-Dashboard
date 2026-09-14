@@ -1,0 +1,153 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.3.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "CY26SU05",
+      "reportVersionAtImport": {
+        "visual": "2.9.0",
+        "report": "3.3.0",
+        "page": "2.3.1"
+      },
+      "type": "SharedResources"
+    },
+    "customTheme": {
+      "name": "AccessibleDefault",
+      "reportVersionAtImport": {
+        "visual": "2.10.0",
+        "report": "3.4.0",
+        "page": "2.3.1"
+      },
+      "type": "SharedResources"
+    }
+  },
+  "objects": {
+    "section": [
+      {
+        "properties": {
+          "verticalAlignment": {
+            "expr": {
+              "Literal": {
+                "Value": "'Top'"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspacePane": [
+      {
+        "properties": {
+          "expanded": {
+            "expr": {
+              "Literal": {
+                "Value": "false"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "resourcePackages": [
+    {
+      "name": "SharedResources",
+      "type": "SharedResources",
+      "items": [
+        {
+          "name": "AccessibleDefault",
+          "path": "BuiltInThemes/AccessibleDefault.json",
+          "type": "CustomTheme"
+        },
+        {
+          "name": "CY26SU05",
+          "path": "BaseThemes/CY26SU05.json",
+          "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "Bars_Hollow_Icon7326297286152917.png",
+          "path": "Bars_Hollow_Icon7326297286152917.png",
+          "type": "Image"
+        },
+        {
+          "name": "Building_Icon15625505634926828.png",
+          "path": "Building_Icon15625505634926828.png",
+          "type": "Image"
+        },
+        {
+          "name": "Chat_Bubble_Icon5287253310191957.png",
+          "path": "Chat_Bubble_Icon5287253310191957.png",
+          "type": "Image"
+        },
+        {
+          "name": "Cup_Icon020632627606672838.png",
+          "path": "Cup_Icon020632627606672838.png",
+          "type": "Image"
+        },
+        {
+          "name": "Data_Icon11853411965980687.png",
+          "path": "Data_Icon11853411965980687.png",
+          "type": "Image"
+        },
+        {
+          "name": "Home_Icon33372822021155146.png",
+          "path": "Home_Icon33372822021155146.png",
+          "type": "Image"
+        },
+        {
+          "name": "People_Icon18683608250845973.png",
+          "path": "People_Icon18683608250845973.png",
+          "type": "Image"
+        },
+        {
+          "name": "Product_Box_Image05534631661550726.png",
+          "path": "Product_Box_Image05534631661550726.png",
+          "type": "Image"
+        },
+        {
+          "name": "Product_Box_Image36350571843084967.png",
+          "path": "Product_Box_Image36350571843084967.png",
+          "type": "Image"
+        },
+        {
+          "name": "Sad_Icon6159591866268753.png",
+          "path": "Sad_Icon6159591866268753.png",
+          "type": "Image"
+        },
+        {
+          "name": "Smile_Icon9264101771429007.png",
+          "path": "Smile_Icon9264101771429007.png",
+          "type": "Image"
+        },
+        {
+          "name": "Spokesfan_Logo5705850820447292.png",
+          "path": "Spokesfan_Logo5705850820447292.png",
+          "type": "Image"
+        },
+        {
+          "name": "Star_Icon44321173390210955.png",
+          "path": "Star_Icon44321173390210955.png",
+          "type": "Image"
+        },
+        {
+          "name": "Triangle_Alert_Icon19361880997034475.png",
+          "path": "Triangle_Alert_Icon19361880997034475.png",
+          "type": "Image"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "exportDataMode": "AllowSummarized",
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true
+  }
+}

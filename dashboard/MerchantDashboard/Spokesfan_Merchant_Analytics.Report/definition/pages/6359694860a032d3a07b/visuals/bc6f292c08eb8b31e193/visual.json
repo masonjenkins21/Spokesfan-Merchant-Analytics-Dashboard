@@ -1,0 +1,52 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "bc6f292c08eb8b31e193",
+  "position": {
+    "x": 206.81386589684024,
+    "y": 83.141252621845325,
+    "z": 24000,
+    "height": 33.25650104873813,
+    "width": 611.08820677056315,
+    "tabOrder": 15012
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Explore how your products perform based on customer reviews, ratings, and sentiment",
+                    "textStyle": {
+                      "fontSize": "10.5pt",
+                      "color": "#152638"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "visualContainerObjects": {
+      "background": [
+        {
+          "properties": {
+            "show": {
+              "expr": {
+                "Literal": {
+                  "Value": "false"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

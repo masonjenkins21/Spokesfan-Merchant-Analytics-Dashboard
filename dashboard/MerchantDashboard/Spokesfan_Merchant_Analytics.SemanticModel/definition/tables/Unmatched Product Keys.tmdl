@@ -1,0 +1,30 @@
+table 'Unmatched Product Keys'
+	lineageTag: 7e1a7340-4681-4da2-acea-ff4f168c44e6
+
+	column product_key
+		lineageTag: 966ac54b-c8b4-4900-8e25-08e7aba4eedb
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [product_key]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Unmatched Product Keys' = calculated
+		mode: import
+		source =
+				
+				EXCEPT(
+				    SELECTCOLUMNS(
+				        'Product Sentiment',
+				        "product_key",
+				        'Product Sentiment'[product_key]
+				    ),
+				    SELECTCOLUMNS(
+				        'Dim Product Old',
+				        "product_key",
+				        'Dim Product Old'[product_key]
+				    )
+				)
+
+	annotation PBI_Id = c0507666120d431caf1c0fc52a216f45
+

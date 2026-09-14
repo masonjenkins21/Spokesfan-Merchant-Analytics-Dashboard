@@ -1,0 +1,144 @@
+table 'Customer Voice Highlights'
+	lineageTag: ac7b970b-6929-49be-b837-aef59145b53b
+
+	column merchant
+		dataType: string
+		lineageTag: 740c5729-4b58-444d-911e-1359e4ef02e3
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: dbc6a96b-a142-4a57-9fc9-aaa3366d5981
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column sentiment
+		dataType: string
+		lineageTag: 2ef984d7-d6a1-4b9b-865f-c6b677a5b7ef
+		summarizeBy: none
+		sourceColumn: sentiment
+
+		annotation SummarizationSetBy = Automatic
+
+	column theme
+		dataType: string
+		lineageTag: 1a5f9fb2-ec5e-4440-84ee-b69db0d91195
+		summarizeBy: none
+		sourceColumn: theme
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_star_rating
+		dataType: int64
+		formatString: 0
+		lineageTag: f6eba45d-83c4-48e9-bae1-dfb6c7c40754
+		summarizeBy: sum
+		sourceColumn: customer_star_rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_feedback
+		dataType: string
+		lineageTag: b92bad21-6b99-4936-8edc-70700fbf7139
+		summarizeBy: none
+		sourceColumn: customer_feedback
+
+		annotation SummarizationSetBy = Automatic
+
+	column sentiment_confidence
+		dataType: double
+		lineageTag: 287aed24-45ea-4eed-8cfa-db7267b6123f
+		summarizeBy: sum
+		sourceColumn: sentiment_confidence
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column feedback_priority
+		dataType: string
+		lineageTag: 2c317819-66ed-4975-aa0a-ce7d7c209b8e
+		summarizeBy: none
+		sourceColumn: feedback_priority
+
+		annotation SummarizationSetBy = Automatic
+
+	column feedback_excerpt
+		dataType: string
+		lineageTag: 53aac654-3cb8-4b69-92bf-927d53d04b15
+		summarizeBy: none
+		sourceColumn: feedback_excerpt
+
+		annotation SummarizationSetBy = Automatic
+
+	column highlight_type
+		dataType: string
+		lineageTag: 6a17d92c-2feb-43b2-bd9d-492231176bbe
+		summarizeBy: none
+		sourceColumn: highlight_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column confidence_level
+		dataType: string
+		lineageTag: d0d3c966-8af1-4828-b0bf-93d40e15d673
+		summarizeBy: none
+		sourceColumn: confidence_level
+
+		annotation SummarizationSetBy = Automatic
+
+	column feedback_rank
+		dataType: string
+		lineageTag: c7ff7e29-8263-469d-8fb8-ff5227362308
+		summarizeBy: none
+		sourceColumn: feedback_rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column pii_redacted
+		dataType: string
+		lineageTag: 84d14172-eeba-4a77-a3bb-c8beaf4405cf
+		summarizeBy: none
+		sourceColumn: pii_redacted
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 5c910296-90cf-4c4e-80fa-d2bf6ce86a8a
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Customer Voice Highlights' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(
+				    File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\customer_voice_highlights.csv"),
+				    [
+				        Delimiter=",",
+				        Encoding=65001,
+				        QuoteStyle=QuoteStyle.Csv
+				    ]
+				),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"product_name", type text}, {"sentiment", type text}, {"theme", type text}, {"customer_star_rating", Int64.Type}, {"feedback_excerpt", type text}, {"customer_feedback", type text}, {"sentiment_confidence", type number}, {"feedback_priority", type text}}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"merchant", Text.Trim, type text}, {"product_name", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}, {"product_name", Text.Clean, type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Cleaned Text", "product_key", each Text.Lower(Text.Trim([merchant]))
+				    & "|"
+				    & Text.Lower(Text.Trim([product_name])))
+				in
+				    #"Added Custom"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

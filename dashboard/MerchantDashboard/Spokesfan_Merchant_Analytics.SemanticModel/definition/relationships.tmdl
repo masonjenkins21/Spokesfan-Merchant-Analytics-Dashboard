@@ -1,0 +1,135 @@
+relationship e57023c0-7f84-4de2-8a00-3bc30a35d1aa
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Monthly Trends'.month
+	toColumn: LocalDateTable_44cac68f-bf97-4e59-8592-49ff45dd9c34.Date
+
+relationship 6717a6c8-acba-4d3f-9b95-6ba23d1babca
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'Review Details'.review_date
+	toColumn: LocalDateTable_381f18d8-4e5d-4d79-b017-dd6bab5fac4d.Date
+
+relationship 52db0cb7-cb64-41b7-a0d5-9b99ed49015c
+	fromColumn: 'Merchant Summary'.merchant
+	toColumn: 'Dim Merchant'.merchant
+
+relationship 5c70a741-d55f-765e-224e-7f6b1740d0d3
+	fromColumn: 'Merchant Sentiment Distribution'.merchant
+	toColumn: 'Dim Merchant'.merchant
+
+relationship d6647166-5684-9b8e-5c94-2e0a45802836
+	fromColumn: 'Monthly Trends'.merchant
+	toColumn: 'Dim Merchant'.merchant
+
+relationship AutoDetected_1682dc88-87ef-4f55-a735-1174dd03e971
+	fromColumn: 'Dim Product Family Lookup'.merchant
+	toColumn: 'Dim Merchant'.merchant
+
+relationship AutoDetected_dee72815-cf2a-46c2-b78a-48bc87558597
+	fromColumn: 'Dim Product Family Lookup'.merchant
+	toColumn: 'Review Quality'.merchant
+
+relationship AutoDetected_9105d60b-7a64-48fb-bd2a-acef3cfbc9d5
+	fromColumn: 'Dim Product Family Lookup'.merchant
+	toColumn: 'Merchant Sentiment'.merchant
+
+relationship AutoDetected_5917baee-b666-451a-878a-f0ef6db355f4
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Dim Product Family Lookup'.product_name
+	toColumn: 'Product Catalog'.product_name
+
+relationship AutoDetected_37c9d011-f72e-4088-a64d-2739dc508626
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Dim Product Family Lookup'.product_name
+	toColumn: 'Product Sentiment'.product_name
+
+relationship AutoDetected_18227637-0fdf-4da9-a82f-302d4daaa400
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Dim Product Family Lookup'.product_name
+	toColumn: 'Product Performance Metrics'.product_name
+
+relationship AutoDetected_cab09311-2d58-4d67-86db-161ae153f350
+	fromColumn: 'Product Themes'.product_key
+	toColumn: 'Dim Product Family Lookup'.product_key
+
+relationship AutoDetected_3ca53480-c399-4306-b749-81951a1660dd
+	isActive: false
+	fromColumn: 'Review Details'.product_key
+	toColumn: 'Dim Product Family Lookup'.product_key
+
+relationship AutoDetected_53aacca1-4d94-48aa-8ba0-8d2e2b1fcf1f
+	isActive: false
+	fromColumn: 'Customer Voice Highlights'.product_key
+	toColumn: 'Dim Product Family Lookup'.product_key
+
+relationship AutoDetected_cb7e7539-6eb1-4559-a196-20e82be017fc
+	fromColumn: 'Dim Product'.merchant
+	toColumn: 'Review Quality'.merchant
+
+relationship AutoDetected_c56d598a-5b01-482b-a5b6-ed8108524c02
+	fromColumn: 'Dim Product'.merchant
+	toColumn: 'Merchant Sentiment'.merchant
+
+relationship AutoDetected_7f04b3a9-c0dc-4009-acdc-6f3252d8d33a
+	fromColumn: 'Dim Product'.merchant
+	toColumn: 'Dim Merchant'.merchant
+
+relationship AutoDetected_080975ae-22a2-4ee0-8651-8c81d7af13c3
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Dim Product'.product_name
+	toColumn: 'Product Catalog'.product_name
+
+relationship AutoDetected_d79aa868-0f1b-400a-b29e-c07bf83fb9d4
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Dim Product'.product_name
+	toColumn: 'Product Sentiment'.product_name
+
+relationship AutoDetected_1020b6e0-c4d9-4077-9799-958da417e873
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Dim Product'.product_name
+	toColumn: 'Product Performance Metrics'.product_name
+
+relationship AutoDetected_e53a26cd-14cb-44a5-be32-1a36ef1419dd
+	isActive: false
+	fromColumn: 'Product Themes'.product_key
+	toColumn: 'Dim Product'.product_key
+
+relationship AutoDetected_b0f58fd0-da6b-466a-af0c-bcef79ac31cc
+	fromColumn: 'Review Details'.product_key
+	toColumn: 'Dim Product'.product_key
+
+relationship AutoDetected_433b2350-83e8-4d53-9c22-61fe3229c8c3
+	fromColumn: 'Customer Voice Highlights'.product_key
+	toColumn: 'Dim Product'.product_key
+
+relationship 36cee0b0-aafe-65a9-74db-96968516490f
+	fromColumn: 'Product Sentiment'.product_key
+	toColumn: 'Dim Product'.product_key
+
+relationship aa992e48-19a9-32d4-538a-d6bc71ba3bfa
+	fromColumn: 'Product Risk Summary'.product_key
+	toColumn: 'Dim Product'.product_key
+
+relationship f789d86e-11e6-a89c-21ca-896d4ddb979c
+	fromColumn: 'Product Performance Metrics'.product_key
+	toColumn: 'Dim Product'.product_key
+
+relationship 756ea59f-dfb4-f6e5-cb49-964346275c36
+	fromColumn: 'Recent Product Performance'.product_key
+	toColumn: 'Dim Product'.product_key
+
+relationship 23fc61d7-a4b7-03a1-bca9-16daca6a2bfe
+	fromColumn: 'Product Catalog'.product_key
+	toColumn: 'Dim Product'.product_key
+

@@ -1,0 +1,201 @@
+table 'Product Sentiment'
+	lineageTag: 821455f1-7829-43ad-9c59-f14d78f10d8d
+
+	measure 'Negative Sentiment Display' =
+			
+			FORMAT(
+			    AVERAGE('Product Sentiment'[negative_percent])/100,
+			    "0.0%"
+			)
+		lineageTag: a90e0d4a-e155-4f6d-9b8f-4135e34671e8
+
+	measure 'Total Reviews Display' =
+			
+			FORMAT(
+			    SUM('Product Sentiment'[total_reviews]),
+			    "#,##0"
+			)
+		lineageTag: 53703374-df32-43ac-87cb-3d20e268091a
+
+	measure 'Average Rating Display' =
+			
+			FORMAT(
+			    AVERAGE('Product Sentiment'[average_rating]),
+			    "0.00"
+			)
+		lineageTag: 8730a152-0d88-4ab0-b393-c036cddfcfc2
+
+	measure 'Positive Sentiment Display' =
+			
+			FORMAT(
+			    AVERAGE('Product Sentiment'[positive_percent])/100,
+			    "0.0%"
+			)
+		lineageTag: 721e9e40-62f5-4266-a6a3-e96eced27f9e
+
+	measure 'Top Reviewed Product' =
+			
+			VAR ProductTable =
+			    TOPN(
+			        1,
+			        'Product Sentiment',
+			        'Product Sentiment'[total_reviews],
+			        DESC
+			    )
+			RETURN
+			    MAXX(
+			        ProductTable,
+			        'Product Sentiment'[product_name]
+			    )
+		lineageTag: 2ab599ed-55d5-47f1-ba0f-c17aad677b26
+
+	measure 'Highest Rated Product' =
+			
+			VAR TopProduct =
+			    TOPN(
+			        1,
+			        FILTER(
+			            VALUES('Dim Product Old'[product_name]),
+			            CALCULATE(SUM('Product Sentiment'[total_reviews])) > 0
+			        ),
+			        CALCULATE(MAX('Product Sentiment'[average_rating])), DESC,
+			        CALCULATE(SUM('Product Sentiment'[total_reviews])), DESC,
+			        'Dim Product Old'[product_name], ASC
+			    )
+			RETURN
+			    CONCATENATEX(
+			        TopProduct,
+			        'Dim Product Old'[product_name],
+			        ", "
+			    )
+		lineageTag: d4357dfb-4bb9-485c-933b-a8a78847c56d
+
+	measure 'Needs Attention' =
+			
+			VAR AttentionProduct =
+			    TOPN(
+			        1,
+			        FILTER(
+			            VALUES('Dim Product Old'[product_name]),
+			            CALCULATE(SUM('Product Sentiment'[total_reviews])) > 0
+			        ),
+			        CALCULATE(MAX('Product Sentiment'[negative_percent])), DESC,
+			        CALCULATE(SUM('Product Sentiment'[total_reviews])), DESC,
+			        'Dim Product Old'[product_name], ASC
+			    )
+			RETURN
+			    CONCATENATEX(
+			        AttentionProduct,
+			        'Dim Product Old'[product_name],
+			        ", "
+			    )
+		lineageTag: a0a8b267-b070-47be-8a40-9cfe8b8ca4c9
+
+	measure 'Product Review Total' =
+			
+			SUM(
+			    'Product Sentiment'[total_reviews]
+			)
+		formatString: 0
+		lineageTag: 51c2a186-c695-49d9-a998-4d54dc684dd9
+
+	measure 'Merchant Total Reviews' =
+			
+			SUM(
+			    'Product Sentiment'[total_reviews]
+			)
+		formatString: 0
+		lineageTag: 97180803-6613-4ebb-af10-c33bd0eadb92
+
+	column merchant
+		dataType: string
+		lineageTag: 8e5bc5dc-7148-4fea-a576-8a16f6bd7f2f
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 6aef9445-a928-45fe-93ba-9a627084af54
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: int64
+		formatString: #,0
+		lineageTag: ff7379cc-5948-47e2-9570-58e86bdb2cd0
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column average_rating
+		dataType: double
+		lineageTag: 375f5336-3329-4078-8584-157f94dc0495
+		summarizeBy: sum
+		sourceColumn: average_rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column average_confidence
+		dataType: double
+		lineageTag: 50bf4169-a99c-4b5e-a774-a7258b8d6747
+		summarizeBy: sum
+		sourceColumn: average_confidence
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column positive_percent
+		dataType: double
+		lineageTag: c3defe6c-feeb-4e66-b68e-55dbdafa01eb
+		summarizeBy: sum
+		sourceColumn: positive_percent
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column negative_percent
+		dataType: double
+		lineageTag: 75ca17f5-f937-4a7d-baa7-922467bcabec
+		summarizeBy: sum
+		sourceColumn: negative_percent
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column product_key
+		dataType: string
+		lineageTag: 0d9d369d-59ff-4e53-9259-8966a24a7c44
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Product Sentiment' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\product_sentiment_summary.csv"),[Delimiter=",", Columns=7, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"product_name", type text}, {"total_reviews", Int64.Type}, {"average_rating", type number}, {"average_confidence", type number}, {"positive_percent", type number}, {"negative_percent", type number}}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"merchant", Text.Trim, type text}, {"product_name", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}, {"product_name", Text.Clean, type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Cleaned Text", "product_key", each Text.Lower(Text.Trim([merchant]))
+				    & "|"
+				    & Text.Lower(Text.Trim([product_name])))
+				in
+				    #"Added Custom"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

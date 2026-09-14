@@ -1,0 +1,33 @@
+table 'Product Family Lookup'
+	lineageTag: f53797e3-a96b-4149-be56-8bdc51a9baa7
+
+	column 'Product Family'
+		dataType: string
+		lineageTag: 9f1ebca4-fc0f-4769-8865-9efdefa413b5
+		summarizeBy: none
+		sourceColumn: Product Family
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: e1e3978b-a1bd-442d-9c53-0a6867820998
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Product Family Lookup' = m
+		mode: import
+		source =
+				let
+				    Source = #"Recent Product Performance",
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"merchant", "product_name", "recent_reviews", "recent_positive_percent", "recent_average_rating"}),
+				    #"Removed Duplicates" = Table.Distinct(#"Removed Columns")
+				in
+				    #"Removed Duplicates"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

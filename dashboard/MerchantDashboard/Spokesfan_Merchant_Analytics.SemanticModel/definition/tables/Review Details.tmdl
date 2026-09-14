@@ -1,0 +1,203 @@
+table 'Review Details'
+	lineageTag: 9da4041b-9536-4329-a80b-fca8c4a3c03f
+
+	column product_url
+		dataType: string
+		lineageTag: 3e0213a6-c0c0-4e34-b425-300331609b2c
+		summarizeBy: none
+		sourceColumn: product_url
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_title
+		dataType: string
+		lineageTag: 0fb2160c-6109-4f9b-bfa9-2647fd0c9ebb
+		summarizeBy: none
+		sourceColumn: review_title
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_description
+		dataType: string
+		lineageTag: 9b9fa02a-0809-439a-8304-53b80abb910c
+		summarizeBy: none
+		sourceColumn: review_description
+
+		annotation SummarizationSetBy = Automatic
+
+	column rating
+		dataType: int64
+		formatString: 0
+		lineageTag: 762f738a-e303-45da-9c8a-b546f329059d
+		summarizeBy: sum
+		sourceColumn: rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column sentiment
+		dataType: double
+		lineageTag: 68ea7b3d-7b5e-47ef-bd64-bed0e4b18f38
+		summarizeBy: sum
+		sourceColumn: sentiment
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column review_date
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: bee7f47c-d7a7-41cf-9a8d-96206a2ea956
+		summarizeBy: none
+		sourceColumn: review_date
+
+		variation Variation
+			isDefault
+			relationship: 6717a6c8-acba-4d3f-9b95-6ba23d1babca
+			defaultHierarchy: LocalDateTable_381f18d8-4e5d-4d79-b017-dd6bab5fac4d.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 4324c54e-c8ee-40e8-b685-3dde05b70986
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column review_text
+		dataType: string
+		lineageTag: 8abd0dc4-d647-469a-8bb7-e562c356a753
+		summarizeBy: none
+		sourceColumn: review_text
+
+		annotation SummarizationSetBy = Automatic
+
+	column roberta_label
+		dataType: string
+		lineageTag: 3a2ed392-5598-4d0c-b75e-1ce7f06aa37b
+		summarizeBy: none
+		sourceColumn: roberta_label
+
+		annotation SummarizationSetBy = Automatic
+
+	column roberta_confidence
+		dataType: double
+		lineageTag: d3a6c012-ea39-4b44-866a-51890acef740
+		summarizeBy: sum
+		sourceColumn: roberta_confidence
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column sentiment_score
+		dataType: string
+		lineageTag: 47698205-476c-42a0-be88-dd67b34ea3a9
+		summarizeBy: none
+		sourceColumn: sentiment_score
+
+		annotation SummarizationSetBy = Automatic
+
+	column merchant
+		dataType: string
+		lineageTag: d012a557-1b7e-48e7-8c37-06a6d7ee7436
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column reviewer
+		dataType: string
+		lineageTag: 53836852-9442-4c7c-a406-a92e8cda0da2
+		summarizeBy: none
+		sourceColumn: reviewer
+
+		annotation SummarizationSetBy = Automatic
+
+	column verified
+		dataType: string
+		lineageTag: f760a8e9-3ed2-49e4-9dff-1766e0f13aff
+		summarizeBy: none
+		sourceColumn: verified
+
+		annotation SummarizationSetBy = Automatic
+
+	column helpful_count
+		dataType: string
+		lineageTag: 9d96d3c3-8f93-476f-bec4-c0fbe879922d
+		summarizeBy: none
+		sourceColumn: helpful_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column language
+		dataType: string
+		lineageTag: 1050730e-8725-4c2c-a967-2789c71849cc
+		summarizeBy: none
+		sourceColumn: language
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_handle
+		dataType: string
+		lineageTag: 5b3e8288-b18b-49b0-b0cd-de8671cbdc9a
+		summarizeBy: none
+		sourceColumn: product_handle
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Review Preview'
+		dataType: string
+		lineageTag: 281b2ccd-82a1-4744-890c-99a008f8ea6d
+		summarizeBy: none
+		sourceColumn: Review Preview
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sentiment Display' =
+			
+			SWITCH(
+			    'Review Details'[roberta_label],
+			    "positive", "Positive",
+			    "negative", "Negative",
+			    "neutral", "Neutral",
+			    'Review Details'[roberta_label]
+			)
+		lineageTag: 79071fb4-31ed-4c84-a673-b325f479ba49
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 606f2906-487b-4014-a662-29d203bd2557
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Review Details' = m
+		mode: import
+		source = ```
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\reviews_with_roberta_sentiment.csv"),[Delimiter=",", Columns=17, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"product_url", type text}, {"review_title", type text}, {"review_description", type text}, {"rating", Int64.Type}, {"sentiment", type number}, {"review_date", type datetime}, {"product_name", type text}, {"review_text", type text}, {"roberta_label", type text}, {"roberta_confidence", type number}, {"sentiment_score", type text}, {"merchant", type text}, {"reviewer", type text}, {"verified", type text}, {"helpful_count", type text}, {"language", type text}, {"product_handle", type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type", "Review Preview", each if Text.Length([review_description]) > 120 
+				then Text.Start([review_description],120) & "..."
+				else [review_description]),
+				    #"Trimmed Text" = Table.TransformColumns(#"Added Custom",{{"product_name", Text.Trim, type text}, {"merchant", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"product_name", Text.Clean, type text}, {"merchant", Text.Clean, type text}}),
+				    #"Added Custom1" = Table.AddColumn(#"Cleaned Text", "product_key", each Text.Lower(Text.Trim([merchant]))
+				    & "|"
+				    & Text.Lower(Text.Trim([product_name])))
+				in
+				    #"Added Custom1"
+				```
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

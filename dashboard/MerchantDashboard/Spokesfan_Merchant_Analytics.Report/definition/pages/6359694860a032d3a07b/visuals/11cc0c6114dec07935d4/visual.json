@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.12.0/schema.json",
+  "name": "11cc0c6114dec07935d4",
+  "position": {
+    "x": 793.85498393268,
+    "y": 20.230987287438165,
+    "z": 26000,
+    "height": 29.946602258633071,
+    "width": 77.005548665056466,
+    "tabOrder": 15014
+  },
+  "visual": {
+    "visualType": "textbox",
+    "objects": {
+      "general": [
+        {
+          "properties": {
+            "paragraphs": [
+              {
+                "textRuns": [
+                  {
+                    "value": "Merchant",
+                    "textStyle": {
+                      "fontFamily": "Calibri",
+                      "color": "#808080"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

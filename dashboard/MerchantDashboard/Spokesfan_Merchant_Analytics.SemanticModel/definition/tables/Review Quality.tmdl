@@ -1,0 +1,64 @@
+table 'Review Quality'
+	lineageTag: 1350ed8a-22df-461c-9b6a-6b71f9e8b446
+
+	column merchant
+		dataType: string
+		lineageTag: 54babe0d-535a-4604-aa15-ecf998bcfc72
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 225c9700-246b-4f83-aa5a-e0b4fd84168b
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column average_review_length
+		dataType: double
+		lineageTag: 9ab1da53-32ef-4e0d-abaf-0624287ffc36
+		summarizeBy: sum
+		sourceColumn: average_review_length
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column average_rating
+		dataType: double
+		lineageTag: 6513f93c-2e81-41ab-80cc-db226404fd3a
+		summarizeBy: sum
+		sourceColumn: average_rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column average_sentiment_confidence
+		dataType: double
+		lineageTag: e66296fa-8f1b-4b72-a740-85c146eafbe8
+		summarizeBy: sum
+		sourceColumn: average_sentiment_confidence
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Review Quality' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\review_quality_metrics.csv"),[Delimiter=",", Columns=5, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"total_reviews", Int64.Type}, {"average_review_length", type number}, {"average_rating", type number}, {"average_sentiment_confidence", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

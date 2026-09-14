@@ -1,0 +1,151 @@
+table 'Recent Product Performance'
+	lineageTag: 700753b4-44f0-41cc-9560-1906609970a6
+
+	measure 'Recent Positive Sentiment %' =
+			
+			DIVIDE(
+			    AVERAGE('Recent Product Performance'[recent_positive_percent]),
+			    100
+			)
+		formatString: 0%;-0%;0%
+		lineageTag: f7a11cc8-0ed6-4366-9d0f-0c06b97f0aa5
+
+	column merchant
+		dataType: string
+		lineageTag: 735d611c-0fac-464b-b664-44837ac800b0
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: 46f1cf2e-5b54-46ef-acec-e6e6d9a66a6e
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column recent_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 305a2861-8f8f-4f8c-8c95-cee10b259237
+		summarizeBy: sum
+		sourceColumn: recent_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column recent_positive_percent
+		dataType: double
+		lineageTag: 33841ddc-ca16-4c28-9c2b-57ee8dd75ec7
+		summarizeBy: none
+		sourceColumn: recent_positive_percent
+
+		annotation SummarizationSetBy = User
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column recent_average_rating
+		dataType: double
+		lineageTag: 786238c9-929a-4db6-8f12-d92c76349d4b
+		summarizeBy: sum
+		sourceColumn: recent_average_rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Product Family'
+		dataType: string
+		lineageTag: 72038420-9364-498c-a9d7-98ba3f572929
+		summarizeBy: none
+		sourceColumn: Product Family
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 8028a0dc-badf-444d-9cdc-e847a35e3464
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Recent Product Performance' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\recent_product_performance.csv"),[Delimiter=",", Columns=5, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"product_name", type text}, {"recent_reviews", Int64.Type}, {"recent_positive_percent", type number}, {"recent_average_rating", type number}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type", "Product Family", each if Text.Contains([product_name], "Bright Side", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Bright Tight", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Brighten Hydrate", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Brighter Days", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "First Light", Comparer.OrdinalIgnoreCase)
+				then "Brightening Eye Collection"
+				
+				else if Text.Contains([product_name], "Firm Believer", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Firming Day Night Duo", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Firming Night Duo", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Firm Brighten Duo", Comparer.OrdinalIgnoreCase)
+				then "Firming Collection"
+				
+				else if Text.Contains([product_name], "Dream Bio Retinol", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Natural Icons", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Skin Hero", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Skinhero", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Eye Hero", Comparer.OrdinalIgnoreCase)
+				then "Bio-Retinol Collection"
+				
+				else if Text.Contains([product_name], "Best Sellers Discovery", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Best Sellers Trial", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Give Me More Best Sellers", Comparer.OrdinalIgnoreCase)
+				then "Best Sellers Kits"
+				
+				else if Text.Contains([product_name], "Hydration Cream Lip Duo", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Softserve", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Lip Treatment Kit", Comparer.OrdinalIgnoreCase)
+				then "Lip Treatment Collection"
+				
+				else if Text.Contains([product_name], "Hydration Day Night Duo", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Hydration Morning Duo", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Jelly Drops Routine", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Soothe Hydrate Routine", Comparer.OrdinalIgnoreCase)
+				then "Hydration Collection"
+				
+				else if Text.Contains([product_name], "Jelly Drops", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Birthday Edition Jelly Drops", Comparer.OrdinalIgnoreCase)
+				then "Jelly Drops Collection"
+				
+				else if Text.Contains([product_name], "Radiance", Comparer.OrdinalIgnoreCase)
+				then "Radiance Collection"
+				
+				else if Text.Contains([product_name], "Replenish", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Restore Ceramides", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Skin Barrier Reset", Comparer.OrdinalIgnoreCase)
+				then "Barrier Repair Collection"
+				
+				else if Text.Contains([product_name], "Off Duty", Comparer.OrdinalIgnoreCase)
+				then "Off Duty Eye Masks"
+				
+				else if Text.Contains([product_name], "Purify", Comparer.OrdinalIgnoreCase)
+				then "Purify Collection"
+				
+				else if Text.Contains([product_name], "Boost 49", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Glow Jojoba", Comparer.OrdinalIgnoreCase)
+				then "Facial Oil Collection"
+				
+				else [product_name]),
+				    #"Trimmed Text" = Table.TransformColumns(#"Added Custom",{{"merchant", Text.Trim, type text}, {"product_name", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}, {"product_name", Text.Clean, type text}}),
+				    #"Added Custom1" = Table.AddColumn(#"Cleaned Text", "product_key", each Text.Lower(Text.Trim([merchant]))
+				    & "|"
+				    & Text.Lower(Text.Trim([product_name])))
+				in
+				    #"Added Custom1"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

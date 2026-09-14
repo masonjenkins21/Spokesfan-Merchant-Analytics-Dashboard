@@ -1,0 +1,144 @@
+table 'Product Themes'
+	lineageTag: 67c5c8b3-0e8b-4a86-b4a3-fdbb43bcedba
+
+	column product_name
+		dataType: string
+		lineageTag: 1a5e659c-c0d5-410d-82ee-08271d3d3ba0
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column merchant
+		dataType: string
+		lineageTag: 30e0d4a3-ed26-4097-b578-8b71a1ddb3f2
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column theme
+		dataType: string
+		lineageTag: 8e7102b4-0a4b-48fb-8449-b93250b16030
+		summarizeBy: none
+		sourceColumn: theme
+
+		annotation SummarizationSetBy = Automatic
+
+	column mentions
+		dataType: string
+		lineageTag: 0a751e8b-05e7-4450-bdae-ee6b269fd570
+		summarizeBy: none
+		sourceColumn: mentions
+
+		annotation SummarizationSetBy = Automatic
+
+	column negative_review_count
+		dataType: string
+		lineageTag: 9bd7a32b-3587-4b41-8978-97d35e478bb7
+		summarizeBy: none
+		sourceColumn: negative_review_count
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: string
+		lineageTag: fe3881ac-43ec-415f-8553-f988f5472666
+		summarizeBy: none
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column theme_prevalence_in_negative_reviews
+		dataType: string
+		lineageTag: d8070a75-455a-4bed-8763-dee7243910d1
+		summarizeBy: none
+		sourceColumn: theme_prevalence_in_negative_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column overall_customer_impact
+		dataType: string
+		lineageTag: 44c3f1f4-5da7-4bd4-bb1e-6bf5470a9c1c
+		summarizeBy: none
+		sourceColumn: overall_customer_impact
+
+		annotation SummarizationSetBy = Automatic
+
+	column impact_rank
+		dataType: string
+		lineageTag: 4f05c419-e520-42f9-93bc-6c06b41ae7bc
+		summarizeBy: none
+		sourceColumn: impact_rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_risk_score
+		dataType: string
+		lineageTag: db9bacba-98f6-4c19-8790-9ccf10e9c31a
+		summarizeBy: none
+		sourceColumn: customer_risk_score
+
+		annotation SummarizationSetBy = Automatic
+
+	column theme_severity
+		dataType: string
+		lineageTag: d570914f-e421-4366-a4ef-666448c965dd
+		summarizeBy: none
+		sourceColumn: theme_severity
+
+		annotation SummarizationSetBy = Automatic
+
+	column average_rating
+		dataType: string
+		lineageTag: 05fc4976-d4dd-4652-b784-0c3153b81c09
+		summarizeBy: none
+		sourceColumn: average_rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column negative_review_rate
+		dataType: string
+		lineageTag: d8877e00-4a1c-40a2-8fc6-13917c3654bd
+		summarizeBy: none
+		sourceColumn: negative_review_rate
+
+		annotation SummarizationSetBy = Automatic
+
+	column weighted_theme_mentions
+		dataType: string
+		lineageTag: 6cf29e7e-e8d6-4fd4-aefb-4c81b1301678
+		summarizeBy: none
+		sourceColumn: weighted_theme_mentions
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 75f18a89-818e-47e3-9b03-645c51020cd2
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Product Themes' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(
+				        File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\product_negative_themes.csv"),
+				        [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]
+				    ),
+				    #"Promoted Headers1" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Trimmed Text" = Table.TransformColumns(#"Promoted Headers1",{{"merchant", Text.Trim, type text}, {"product_name", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"merchant", Text.Clean, type text}, {"product_name", Text.Clean, type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Cleaned Text", "product_key", each Text.Lower(Text.Trim([merchant]))
+				    & "|"
+				    & Text.Lower(Text.Trim([product_name])))
+				in
+				    #"Added Custom"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

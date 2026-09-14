@@ -1,0 +1,321 @@
+table 'Product Performance Metrics'
+	lineageTag: c716d1e4-b5ec-4126-85a4-8bf5ba39afdb
+
+	measure 'Negative Sentiment %' =
+			
+			DIVIDE(
+			    MAX('Product Performance Metrics'[negative_percent]),
+			    100
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: de753b98-b792-465a-a0fc-3f06f96bd24b
+
+	measure 'Family Risk Level Background Color' =
+			
+			VAR RiskLevel =
+			    UPPER(
+			        TRIM(
+			            [Family Risk Level]
+			        )
+			    )
+			RETURN
+			    SWITCH(
+			        RiskLevel,
+			        "HIGH", "#F8E4E4",
+			        "MEDIUM", "#FBF0DD",
+			        "LOW", "#E5F1EA",
+			        "NOT ASSESSED", "#ECECEC",
+			        "#FFFFFF"
+			    )
+		lineageTag: a7329bef-ab1a-4269-bb12-91d1b07cc3a9
+
+	measure 'Family Risk Level Font Color' =
+			
+			VAR RiskLevel =
+			    UPPER(
+			        TRIM(
+			            [Family Risk Level]
+			        )
+			    )
+			RETURN
+			    SWITCH(
+			        RiskLevel,
+			        "HIGH", "#A63D3D",
+			        "MEDIUM", "#A36C18",
+			        "LOW", "#3F775B",
+			        "NOT ASSESSED", "#666666",
+			        "#252525"
+			    )
+		lineageTag: e2d4361b-9e8a-457f-8290-bde0e27f0262
+
+	measure 'Risk Level Background Color' =
+			
+			VAR RiskLevel =
+			    UPPER(
+			        TRIM(
+			            SELECTEDVALUE(
+			                'Product Performance Metrics'[risk_level]
+			            )
+			        )
+			    )
+			RETURN
+			    SWITCH(
+			        RiskLevel,
+			        "HIGH", "#F8E4E4",
+			        "MEDIUM", "#FBF0DD",
+			        "LOW", "#E5F1EA",
+			        "NOT ASSESSED", "#ECECEC",
+			        "#FFFFFF"
+			    )
+		lineageTag: 6cf801e5-8ca8-4bf4-922a-2c6ae32cf10f
+
+	measure 'Risk Level Font Color' =
+			
+			VAR RiskLevel =
+			    UPPER(
+			        TRIM(
+			            SELECTEDVALUE(
+			                'Product Performance Metrics'[risk_level]
+			            )
+			        )
+			    )
+			RETURN
+			    SWITCH(
+			        RiskLevel,
+			        "HIGH", "#A63D3D",
+			        "MEDIUM", "#A36C18",
+			        "LOW", "#3F775B",
+			        "NOT ASSESSED", "#666666",
+			        "#252525"
+			    )
+		lineageTag: dbccd136-ee88-449d-a3de-7ee9fb772236
+
+	column merchant
+		dataType: string
+		lineageTag: 45619330-b0c0-429f-9b6d-4b9ddb87f100
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: e99970ad-02df-491c-8a90-ad96fa3cd279
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: int64
+		formatString: #,0
+		lineageTag: 6db3e507-2678-4620-befc-08f48f2e5c05
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column negative_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 15152ac5-38a9-40f2-b8e4-30f4ad7cd381
+		summarizeBy: sum
+		sourceColumn: negative_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column average_rating
+		dataType: double
+		lineageTag: d32b7a27-bb8f-463e-b2b0-32da55558100
+		summarizeBy: sum
+		sourceColumn: average_rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column low_rating_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 585f4d3f-c5b1-4aa3-8552-ccc395736a29
+		summarizeBy: sum
+		sourceColumn: low_rating_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column average_confidence
+		dataType: double
+		lineageTag: 7cd28821-3896-4520-ad66-99ee719ba6fa
+		summarizeBy: sum
+		sourceColumn: average_confidence
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column negative_percent
+		dataType: double
+		lineageTag: f90a9e3c-3732-423c-a72b-6614284ad6f0
+		summarizeBy: sum
+		sourceColumn: negative_percent
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column low_rating_percent
+		dataType: double
+		lineageTag: a58fb196-2b2b-4fb1-b49e-5ccbade64a5c
+		summarizeBy: sum
+		sourceColumn: low_rating_percent
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column review_volume_score
+		dataType: double
+		lineageTag: 7b19825d-9d4a-4f1e-90df-6a8757567616
+		summarizeBy: sum
+		sourceColumn: review_volume_score
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column review_confidence
+		dataType: double
+		lineageTag: b5a39a27-7ae4-4677-b51d-cb63f5931622
+		summarizeBy: sum
+		sourceColumn: review_confidence
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column risk_score
+		dataType: double
+		lineageTag: fbcc367a-60fb-44b5-a2d1-991d7c90cc77
+		summarizeBy: sum
+		sourceColumn: risk_score
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column priority_rank
+		dataType: int64
+		lineageTag: 19470bb8-2489-4717-9cc0-d1b08e257727
+		summarizeBy: none
+		sourceColumn: priority_rank
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_risk_score
+		dataType: double
+		lineageTag: 8c49c870-5f58-43ee-abee-dc1580ddf011
+		summarizeBy: sum
+		sourceColumn: product_risk_score
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column primary_customer_concern
+		dataType: string
+		lineageTag: 0455a9a5-4812-4f4d-9b0f-5348d369e29a
+		summarizeBy: none
+		sourceColumn: primary_customer_concern
+
+		annotation SummarizationSetBy = Automatic
+
+	column risk_level
+		dataType: string
+		lineageTag: 40c0ce70-2e3a-47b8-913e-4f4e7c01877d
+		summarizeBy: none
+		sourceColumn: risk_level
+		sortByColumn: risk_sort
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column risk_sort
+		dataType: string
+		lineageTag: e5de6346-f73f-4e6b-b30e-823a5af6bc66
+		summarizeBy: none
+		sourceColumn: risk_sort
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Product Family'
+		dataType: string
+		lineageTag: ec84fcb3-5d4d-4cd2-9aa2-5bd2024a5e53
+		summarizeBy: none
+		sourceColumn: Product Family
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_key
+		dataType: string
+		lineageTag: 36d0c5b3-2b9b-4909-b39b-eb2edd7a4a35
+		summarizeBy: none
+		sourceColumn: product_key
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Product Performance Metrics' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\product_risk_analysis.csv"),[Delimiter=",", Columns=13, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"product_name", type text}, {"total_reviews", Int64.Type}, {"negative_reviews", Int64.Type}, {"average_rating", type number}, {"low_rating_reviews", Int64.Type}, {"average_confidence", type number}, {"negative_percent", type number}, {"low_rating_percent", type number}, {"review_volume_score", type number}, {"review_confidence", type number}, {"risk_score", type number}, {"risk_category", type text}}),
+				    #"Trimmed Text" = Table.TransformColumns(#"Changed Type",{{"product_name", Text.Trim, type text}, {"merchant", Text.Trim, type text}}),
+				    #"Cleaned Text" = Table.TransformColumns(#"Trimmed Text",{{"product_name", Text.Clean, type text}, {"merchant", Text.Clean, type text}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Cleaned Text", {"merchant", "product_name"}, #"Product Risk Summary", {"merchant", "product_name"}, "Product Risk Summary", JoinKind.LeftOuter),
+				    #"Added Custom" = Table.AddColumn(#"Merged Queries", "Match Status", each if Table.RowCount([Product Risk Summary]) > 0 then "Matched" else "Unmatched"),
+				    #"Filtered Rows" = Table.SelectRows(#"Added Custom", each true),
+				    #"Expanded Product Risk Summary" = Table.ExpandTableColumn(#"Filtered Rows", "Product Risk Summary", {"priority_rank", "risk_level", "product_risk_score", "primary_customer_concern"}, {"priority_rank", "risk_level", "product_risk_score", "primary_customer_concern"}),
+				    #"Added Custom1" = Table.AddColumn(#"Expanded Product Risk Summary", "display_risk_level", each if [risk_level] = null
+				then "Not Assessed"
+				else [risk_level]),
+				    #"Removed Columns" = Table.RemoveColumns(#"Added Custom1",{"risk_level"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"display_risk_level", "risk_level"}}),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Renamed Columns",{"Match Status", "risk_category"}),
+				    #"Added Custom2" = Table.AddColumn(#"Removed Columns1", "risk_sort", each if [risk_level] = "High" then 1
+				else if [risk_level] = "Medium" then 2
+				else if [risk_level] = "Low" then 3
+				else 4),
+				    #"Added Custom3" = Table.AddColumn(#"Added Custom2", "Product Family", each if Text.Contains([product_name], "Bright Side", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Bright Tight", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Brighten Hydrate", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Brighter Days", Comparer.OrdinalIgnoreCase)
+				then "Brightening Eye Collection"
+				
+				else if Text.Contains([product_name], "Firm Believer", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Firming Day Night Duo", Comparer.OrdinalIgnoreCase)
+				then "Firming Collection"
+				
+				else if Text.Contains([product_name], "Dream Bio Retinol", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Natural Icons", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Skin Hero", Comparer.OrdinalIgnoreCase)
+				then "Bio-Retinol Collection"
+				
+				else if Text.Contains([product_name], "Best Sellers Discovery", Comparer.OrdinalIgnoreCase)
+				    or Text.Contains([product_name], "Best Sellers Trial", Comparer.OrdinalIgnoreCase)
+				then "Best Sellers Kits"
+				
+				else [product_name]),
+				    #"Trimmed Text1" = Table.TransformColumns(#"Added Custom3",{{"merchant", Text.Trim, type text}, {"product_name", Text.Trim, type text}}),
+				    #"Cleaned Text1" = Table.TransformColumns(#"Trimmed Text1",{{"merchant", Text.Clean, type text}, {"product_name", Text.Clean, type text}}),
+				    #"Added Custom4" = Table.AddColumn(#"Cleaned Text1", "product_key", each Text.Lower(Text.Trim([merchant]))
+				    & "|"
+				    & Text.Lower(Text.Trim([product_name])))
+				in
+				    #"Added Custom4"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

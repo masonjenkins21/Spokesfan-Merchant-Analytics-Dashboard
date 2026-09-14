@@ -1,0 +1,101 @@
+table 'Merchant Sentiment'
+	lineageTag: ad578a21-e75e-4e54-927f-14d1f08094ac
+
+	column merchant
+		dataType: string
+		lineageTag: 1a694c66-75dd-4a40-8c2f-50a0c23e7d62
+		summarizeBy: none
+		sourceColumn: merchant
+
+		annotation SummarizationSetBy = Automatic
+
+	column total_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 04889a44-cafd-46e1-a52d-ae6e1d30ffaa
+		summarizeBy: sum
+		sourceColumn: total_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column positive_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 940295c9-5bdb-4b0b-a6d4-3ab9896f927d
+		summarizeBy: sum
+		sourceColumn: positive_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column neutral_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: 121d1c98-8366-4599-9c8e-a7c4dce6eed7
+		summarizeBy: sum
+		sourceColumn: neutral_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column negative_reviews
+		dataType: int64
+		formatString: 0
+		lineageTag: aa862fd2-6425-4dc7-9e6e-29c4d076feff
+		summarizeBy: sum
+		sourceColumn: negative_reviews
+
+		annotation SummarizationSetBy = Automatic
+
+	column average_rating
+		dataType: double
+		lineageTag: e337ab03-819d-47a6-b38d-d3054dfed148
+		summarizeBy: sum
+		sourceColumn: average_rating
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column average_confidence
+		dataType: double
+		lineageTag: d7d9cd9a-864c-400c-9157-16048bb818e7
+		summarizeBy: sum
+		sourceColumn: average_confidence
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column positive_percent
+		dataType: double
+		lineageTag: 401e3b7a-d7ae-4e27-b764-f99b4e35ce55
+		summarizeBy: sum
+		sourceColumn: positive_percent
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column negative_percent
+		dataType: double
+		lineageTag: 82becc55-4fcb-4586-8ceb-39e2dc98e42b
+		summarizeBy: sum
+		sourceColumn: negative_percent
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Merchant Sentiment' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\mason\PycharmProjects\SpokesfanMerchantAnalytics\data\processed\dashboard_metrics\merchant_sentiment_summary.csv"),[Delimiter=",", Columns=9, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"merchant", type text}, {"total_reviews", Int64.Type}, {"positive_reviews", Int64.Type}, {"neutral_reviews", Int64.Type}, {"negative_reviews", Int64.Type}, {"average_rating", type number}, {"average_confidence", type number}, {"positive_percent", type number}, {"negative_percent", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

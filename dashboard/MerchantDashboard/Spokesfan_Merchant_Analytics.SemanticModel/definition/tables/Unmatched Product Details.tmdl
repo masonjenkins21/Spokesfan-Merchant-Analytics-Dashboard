@@ -1,0 +1,40 @@
+table 'Unmatched Product Details'
+	lineageTag: 34f3aaef-4ce3-4cd9-9daa-2cbcbe08e6bb
+
+	column Column
+		formatString: 0
+		lineageTag: 26fe9356-c745-46e8-9c26-dbe32b6ba5c2
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Column]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Unmatched Product Details' = calculated
+		mode: import
+		source =
+				
+				FILTER(
+				    SELECTCOLUMNS(
+				        'Product Sentiment',
+				        "merchant",
+				        'Product Sentiment'[merchant],
+				        "product_name",
+				        'Product Sentiment'[product_name],
+				        "product_key",
+				        'Product Sentiment'[product_key],
+				        "total_reviews",
+				        'Product Sentiment'[total_reviews]
+				    ),
+				    NOT(
+				        'Product Sentiment'[product_key]
+				            IN SELECTCOLUMNS(
+				                'Dim Product Old',
+				                "product_key",
+				                'Dim Product Old'[product_key]
+				            )
+				    )
+				)
+
+	annotation PBI_Id = e8ec7d9e400549ce868f6d784b050918
+
