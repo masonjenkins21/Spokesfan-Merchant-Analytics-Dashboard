@@ -1,60 +1,52 @@
-# Spokesfan Merchant Analytics Dashboard
+# Spokesfan Merchant Analytics
 
-This project builds the CSV datasets used by a merchant-facing Power BI dashboard for product reviews, sentiment, customer concerns, and product risk.
-
-The production workflow uses a RoBERTa sentiment model and a series of deterministic pandas transformations. Earlier TF-IDF, logistic-regression, VADER, and DistilBERT experiments are retained under `archive/` so they do not obscure the final dashboard pipeline.
+Merchant-facing analytics project for evaluating product performance, customer sentiment, recurring concerns, and product risk in Power BI.
 
 ## Project structure
 
 ```text
-SpokesfanDashboard_Cleaned/
-├── dashboard/                  # Cleaned Power BI report copy
+SpokesfanMerchantAnalytics/
+├── dashboard/                  # Power BI project and dashboard previews
 ├── data/
-│   ├── raw/                    # Merchant product and review exports
-│   └── processed/
-│       ├── reviews_with_roberta_sentiment.csv
-│       └── dashboard_metrics/  # Power BI input tables
-├── scripts/                    # Active production scripts
-├── src/                        # Shared review classification logic
-├── tests/                      # Lightweight structure/output tests
-├── archive/                    # Experiments, debug scripts, and old exports
+│   ├── raw/                    # Original merchant product and review exports
+│   └── processed/              # Sentiment-scored reviews and Power BI input tables
 ├── documentation/
-├── requirements.txt
-└── requirements-experiments.txt
+│   ├── PROJECT_DECISIONS.md    # Design, methodology, and decision rationale
+│   └── PIPELINE_OUTPUTS.md     # Generated dashboard tables and their purposes
+├── scripts/                    # Dashboard data pipeline
+├── src/                        # Shared review-classification and path logic
+└── requirements.txt            # Python runtime dependencies
 ```
 
-## Run the dashboard pipeline
+## Setup
 
-Create and activate a virtual environment, then install the production dependencies:
-
-```bash
-python -m venv .venv
-```
-
-Windows PowerShell:
+Create and activate a virtual environment, then install the dependencies:
 
 ```powershell
+py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-Build all dashboard tables from the included scored-review file:
+## Build the dashboard data
 
-```bash
-python scripts/run_dashboard_pipeline.py
+The repository includes the sentiment-scored review dataset, so the standard rebuild is:
+
+```powershell
+python scripts\run_dashboard_pipeline.py
 ```
 
-To rerun RoBERTa sentiment scoring from the raw review files first:
+To rerun sentiment scoring from the raw merchant review exports first:
 
-```bash
-python scripts/run_dashboard_pipeline.py --score-reviews
+```powershell
+python scripts\run_dashboard_pipeline.py --score-reviews
 ```
 
-The scoring step loads `cardiffnlp/twitter-roberta-base-sentiment-latest` and therefore takes longer than the downstream CSV build.
+The optional scoring step uses `cardiffnlp/twitter-roberta-base-sentiment-latest` and takes longer than the downstream metric build.
 
-## Production script order
+## Pipeline order
 
-The runner executes these scripts in dependency order:
+The runner executes the dashboard transformations in dependency order:
 
 1. `build_core_metrics.py`
 2. `build_theme_metrics.py`
@@ -67,41 +59,30 @@ The runner executes these scripts in dependency order:
 9. `build_customer_voice.py`
 10. `build_product_risk_summary.py`
 
-`score_reviews_roberta.py` is optional when `reviews_with_roberta_sentiment.csv` already exists.
-
-## Validate the cleaned project
-
-Install the development requirements and run the tests:
-
-```bash
-pip install -r requirements-dev.txt
-python -m pytest -q
-```
-
-The cleaned pipeline was run successfully against the included data. Its generated dashboard tables were compared with the original project and found to be data-identical.
-
-## Archive policy
-
-The `archive/` folder contains material worth retaining for learning or historical context but not required by the final dashboard:
-
-- early sentiment-analysis experiments
-- TF-IDF and logistic-regression model artifacts
-- inspection/debug scripts
-- relationship troubleshooting scripts
-- optional analysis not used by the current report
-- manual Power BI exports
-
-Do not import archived modules into the production pipeline without first updating their paths and dependencies.
+`score_reviews_roberta.py` is optional when `data/processed/reviews_with_roberta_sentiment.csv` already exists.
 
 ## Power BI report
 
-The cleaned report copy is located at:
+Open the Power BI Project from:
 
 ```text
-dashboard/Spokesfan_Merchant_Analytics_Dashboard_Cleaned.pbix
+dashboard\MerchantDashboard\Spokesfan_Merchant_Analytics.pbip
 ```
 
-## Dashboard Preview
+The report contains three primary pages:
+
+1. **Merchant Overview**
+2. **Product Performance**
+3. **Customer Insights**
+
+If the project folder is moved, update the CSV source paths in Power Query before refreshing the report.
+
+## Documentation
+
+- [`documentation/PROJECT_DECISIONS.md`](documentation/PROJECT_DECISIONS.md) explains the major data, modeling, metric, and dashboard decisions and why they were made.
+- [`documentation/PIPELINE_OUTPUTS.md`](documentation/PIPELINE_OUTPUTS.md) lists the generated dashboard tables and their purposes.
+
+## Dashboard previews
 
 ### Merchant Overview
 
@@ -114,4 +95,3 @@ dashboard/Spokesfan_Merchant_Analytics_Dashboard_Cleaned.pbix
 ### Customer Insights
 
 ![Customer Insights](dashboard/images/customer-insights.png)
-
