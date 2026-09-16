@@ -7,9 +7,6 @@ Merchant-facing analytics project for evaluating product performance, customer s
 ```text
 SpokesfanMerchantAnalytics/
 ├── dashboard/                  # Power BI project and dashboard previews
-├── data/
-│   ├── raw/                    # Original merchant product and review exports
-│   └── processed/              # Sentiment-scored reviews and Power BI input tables
 ├── documentation/
 │   ├── PROJECT_DECISIONS.md    # Design, methodology, and decision rationale
 │   └── PIPELINE_OUTPUTS.md     # Generated dashboard tables and their purposes
@@ -17,6 +14,18 @@ SpokesfanMerchantAnalytics/
 ├── src/                        # Shared review-classification and path logic
 └── requirements.txt            # Python runtime dependencies
 ```
+
+Source and processed datasets are maintained locally and excluded from the public repository.
+
+The local project also uses:
+
+```text
+data/
+├── raw/                        # Original merchant product and review exports
+└── processed/                  # Sentiment-scored reviews and Power BI input tables
+```
+
+The public repository contains the transformation code, project documentation, Power BI project structure, and dashboard previews used to demonstrate the analytics workflow.
 
 ## Setup
 
@@ -30,7 +39,7 @@ pip install -r requirements.txt
 
 ## Build the dashboard data
 
-The repository includes the sentiment-scored review dataset, so the standard rebuild is:
+With the required local source and processed datasets available, run the dashboard pipeline with:
 
 ```powershell
 python scripts\run_dashboard_pipeline.py
@@ -59,7 +68,7 @@ The runner executes the dashboard transformations in dependency order:
 9. `build_customer_voice.py`
 10. `build_product_risk_summary.py`
 
-`score_reviews_roberta.py` is optional when `data/processed/reviews_with_roberta_sentiment.csv` already exists.
+`score_reviews_roberta.py` is optional when a locally generated `data/processed/reviews_with_roberta_sentiment.csv` file already exists.
 
 ## Power BI report
 
@@ -76,6 +85,8 @@ The report contains three primary pages:
 3. **Customer Insights**
 
 If the project folder is moved, update the CSV source paths in Power Query before refreshing the report.
+
+Refreshing the report requires the corresponding local processed datasets.
 
 ## Documentation
 
